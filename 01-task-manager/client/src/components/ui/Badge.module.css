@@ -1,0 +1,57 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 26px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  padding: 3px 10px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+
+.default {
+  color: var(--color-muted-strong);
+  background: #eef2f7;
+  border-color: #dde4ee;
+}
+
+.todo {
+  color: #2f5f9f;
+  background: #e7efff;
+  border-color: #c9dafc;
+}
+
+.in_progress {
+  color: #8a5a12;
+  background: var(--color-warning-soft);
+  border-color: #f4d17e;
+}
+
+.done {
+  color: var(--color-success);
+  background: var(--color-success-soft);
+  border-color: #bde8ce;
+}
+
+.low {
+  color: #23725e;
+  background: #e3f5ef;
+  border-color: #b8e1d4;
+}
+
+.medium {
+  color: #9b651a;
+  background: #fff2cf;
+  border-color: #f0d287;
+}
+
+.high,
+.overdue {
+  color: var(--color-danger);
+  background: var(--color-danger-soft);
+  border-color: #f6c2c2;
+}

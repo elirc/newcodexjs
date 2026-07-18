@@ -1,0 +1,12 @@
+{
+  "name": "web-dev-upskilling-projects",
+  "private": true,
+  "scripts": {
+    "dev:project1:server": "npm --prefix 01-task-manager/server run dev",
+    "dev:project1:client": "npm --prefix 01-task-manager/client run dev",
+    "lint:project1:server": "npm --prefix 01-task-manager/server run lint --if-present",
+    "lint:project1:client": "npm --prefix 01-task-manager/client run lint --if-present",
+    "list:projects": "node scripts/list-projects.mjs",
+    "check:manifests": "node scripts/check-project-manifests.mjs"
+  }
+}

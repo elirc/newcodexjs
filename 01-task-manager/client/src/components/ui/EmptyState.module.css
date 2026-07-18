@@ -1,0 +1,36 @@
+.empty {
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  border: 1px dashed var(--color-border-strong);
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.72);
+  padding: 44px 20px;
+  text-align: center;
+}
+
+.mark {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--color-primary);
+  background: var(--color-primary-soft);
+  font-size: 1.6rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.title {
+  margin: 0;
+  font-size: 1.25rem;
+  letter-spacing: 0;
+}
+
+.message {
+  max-width: 48ch;
+  margin: 0;
+  color: var(--color-muted);
+  line-height: 1.55;
+}

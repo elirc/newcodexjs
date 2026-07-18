@@ -1,0 +1,97 @@
+.stack {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.toolbar {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.toolbar input,
+.toolbar select,
+.form input,
+.formWide input,
+.formWide textarea {
+  border: 1px solid #c7d7cf;
+  border-radius: 8px;
+  font: inherit;
+  padding: 0.7rem;
+}
+
+.grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+.card {
+  background: #fff;
+  border: 1px solid #dce7e1;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.card img {
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  width: 100%;
+}
+
+.cardBody {
+  display: grid;
+  gap: 0.5rem;
+  padding: 1rem;
+}
+
+.badge,
+.meta span {
+  background: #e5f1ec;
+  border-radius: 999px;
+  color: #236248;
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 0.25rem 0.55rem;
+  width: fit-content;
+}
+
+.detail {
+  display: grid;
+  gap: 1rem;
+  margin: 0 auto;
+  max-width: 820px;
+}
+
+.detail img {
+  border-radius: 8px;
+  max-height: 420px;
+  object-fit: cover;
+  width: 100%;
+}
+
+.meta,
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.form,
+.formWide {
+  background: #fff;
+  border: 1px solid #dce7e1;
+  border-radius: 8px;
+  display: grid;
+  gap: 0.8rem;
+  margin: 0 auto;
+  max-width: 440px;
+  padding: 1rem;
+}
+
+.formWide {
+  max-width: 760px;
+}
+
+.formWide textarea {
+  min-height: 120px;
+}

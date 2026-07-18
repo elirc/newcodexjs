@@ -1,0 +1,98 @@
+# Tier 1 Execution Plan
+
+Source of truth: `C:\Users\Owner\.codex\attachments\9b97289a-2d80-45f0-bc6d-17faeb83ef8c\pasted-text.txt`.
+
+This plan covers the corrected Tier 1 scope only: Projects 1-15. Ignore the earlier 45-project attachment.
+
+## Goal
+
+Build 15 self-contained full-stack learning apps that share the same baseline architecture: React 18 with Vite, Express, PostgreSQL 16, Knex, CSS Modules, clear backend layering, consistent API envelopes, migrations, seeds, and beginner-friendly docs.
+
+## Suggested Agent Roles
+
+Use small, clearly owned subagents. Each subagent should claim files before editing and should stay inside its assigned project folder unless the coordinator explicitly assigns shared files.
+
+| Role | Owns | Should not own |
+| --- | --- | --- |
+| Coordinator | Project sequencing, root scripts, shared conventions, final integration checks | Feature implementation inside every project |
+| Backend agent | `project/server/**`, migrations, seeds, API smoke checks | Frontend components |
+| Frontend agent | `project/client/**`, UI state, API client, CSS Modules | Backend schema or service behavior |
+| Docs and learning agent | `project/README.md`, `project/docs/**`, learning notes | Runtime code |
+| QA agent | Spec checklist, install/run verification, endpoint and UI smoke tests | Unrequested rewrites |
+
+For larger projects, split backend by domain after the schema is stable. Example for Project 13: product/catalog backend, cart/order backend, storefront frontend, admin frontend, docs/QA.
+
+## Project Inventory
+
+| # | Folder | Project | Main learning focus |
+| --- | --- | --- | --- |
+| 1 | `01-task-manager` | Personal Task Manager | Basic CRUD, Express routing, Knex migrations, React `useState`/`useEffect` |
+| 2 | `02-contact-book` | Contact Book / Address Manager | Many-to-many tags, joins, pagination, search |
+| 3 | `03-expense-tracker` | Personal Expense Tracker | SQL aggregation, dates, charts, CSV export |
+| 4 | `04-notes-app` | Notes App (Markdown) | Markdown rendering, folders/tags, full-text-like search |
+| 5 | `05-recipe-manager` | Recipe Manager with User Accounts | TypeScript baseline, auth, ownership, protected routes |
+| 6 | `06-bookmark-manager` | Bookmark Manager | Zod, React Query, API versioning, metadata fetching |
+| 7 | `07-blog-platform` | Blog Platform with Comments | Rich text/Markdown, comments, publishing workflow |
+| 8 | `08-kanban-board` | Kanban Board | Drag and drop, ordering, nested work items |
+| 9 | `09-job-tracker` | Job Application Tracker | File upload, email reminders, workflow dashboards |
+| 10 | `10-inventory-system` | Inventory Management System | Stock movement ledger, reporting, low-stock alerts |
+| 11 | `11-survey-builder` | Poll / Survey Builder | Dynamic forms, public responses, result charts |
+| 12 | `12-chat-app` | Multi-User Chat App | HTTP polling, channels, read state |
+| 13 | `13-ecommerce-storefront` | E-Commerce Storefront | Catalog, cart, checkout, order lifecycle |
+| 14 | `14-appointment-booking` | Appointment Booking System | Availability, conflict detection, timezone handling |
+| 15 | `15-api-tester` | REST API Testing Tool | Complex frontend state, request proxying, collections |
+
+## Batching Strategy
+
+1. Establish the baseline with Project 1 first. Lock in naming, API envelope shape, error classes, migration style, seed style, and README format.
+2. Run Projects 2-4 as the JavaScript fundamentals batch. These can proceed in parallel once Project 1 conventions are clear, with one backend and one frontend agent per project.
+3. Run Projects 5-8 as the TypeScript and richer state batch. Start Project 5 first because it introduces auth and TypeScript conventions that Projects 6-8 should reuse.
+4. Run Projects 9-12 as the workflow and collaboration batch. These projects need extra QA around uploads, reminders, polling, and dashboard states.
+5. Run Projects 13-15 as the complex systems batch. Give each one a small team and require design notes before implementation because they have more tables, more routes, and more UI state.
+
+Keep no more than three projects in active implementation at once unless each has fully separate agents and no shared-file edits are pending.
+
+## Per-Project Execution Loop
+
+1. Read the project section from the corrected spec and create a short checklist of required features, tables, endpoints, pages, components, and seed data.
+2. Scaffold the folder structure exactly enough for the project. Do not invent a different architecture.
+3. Backend agent builds migrations, seeds, models, services, controllers, routes, error middleware, and env loading.
+4. Frontend agent builds API services, pages, feature components, hooks, CSS Modules, loading states, error states, empty states, and responsive layout.
+5. Docs agent writes README setup steps and an architecture walkthrough while implementation details are fresh.
+6. QA agent runs install, lint/test if present, migrations, seeds, API smoke checks, and a browser smoke test for the primary flow.
+7. Coordinator reviews for spec coverage, file ownership, consistency with earlier projects, and learner readability.
+
+## Quality Gates
+
+Every project should pass these gates before it is considered done:
+
+- Spec coverage: required features, schema, endpoints, UI pages/components, and seed records from the corrected spec are present.
+- Runtime: Node.js 20+, React 18/Vite, Express, PostgreSQL 16, Knex, Axios, and CSS Modules are used as specified.
+- Backend layering: controllers stay thin, services hold business rules, models contain Knex queries, and shared middleware handles errors.
+- API shape: successful responses use `{ success: true, data }`; failures use `{ success: false, error: { message, code } }`.
+- Database: migrations have working `up` and `down`, tables use `snake_case`, timestamps are present, constraints match the spec, and seeds are realistic.
+- Validation: inputs are validated on the server, expected client-side validation exists, and bad requests return useful 400-level errors.
+- Frontend behavior: loading, error, empty, filtered-empty, and successful states are all visible and understandable.
+- Learning docs: README and architecture docs explain how to run the app and why the main decisions were made.
+- Verification: install succeeds, app starts, migrations run, seeds run, primary API endpoints work, and the main UI flow works in the browser.
+
+## Avoiding Write Conflicts
+
+- Assign one owner per project folder at a time. A backend agent can own `01-task-manager/server/**` while a frontend agent owns `01-task-manager/client/**`.
+- Shared files such as root `package.json`, root `README.md`, and root `docs/**` are coordinator-owned unless delegated.
+- Docs agents should only edit `project/README.md` and `project/docs/**`.
+- Never reformat files outside the assigned scope just because a formatter touched them.
+- Before editing, check current file contents and recent status. If another agent changed the same file, merge forward instead of reverting.
+- Keep migration names unique and project-local. Prefer timestamped names that include the table or feature, such as `20260703143000_create_tasks.js`.
+- Add dependencies only in the package that uses them. Coordinate before changing root scripts or workspace-level tooling.
+- Leave unrelated dirty files alone.
+
+## Handoff Format
+
+Each subagent should finish with:
+
+- Files changed.
+- Commands run and whether they passed.
+- Any skipped checks with the reason.
+- Known gaps or follow-up tasks.
+- A short note on spec coverage, especially if anything was intentionally deferred.

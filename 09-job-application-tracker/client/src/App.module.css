@@ -1,0 +1,20 @@
+.shell { min-height: 100vh; padding: 32px; background: #f7f7fb; color: #202230; }
+.header { display: flex; justify-content: space-between; gap: 16px; align-items: center; margin-bottom: 24px; }
+.header h1 { margin: 0; font-size: 32px; }
+.header p { margin: 0 0 4px; color: #62677a; }
+.header input, .panel input { border: 1px solid #d8dbea; border-radius: 8px; padding: 10px 12px; font: inherit; }
+.grid { display: grid; grid-template-columns: minmax(260px, 360px) 1fr; gap: 20px; align-items: start; }
+.panel, .card { background: #fff; border: 1px solid #e4e6f0; border-radius: 8px; box-shadow: 0 10px 24px rgba(20, 24, 40, 0.06); }
+.panel { display: grid; gap: 12px; padding: 18px; }
+.panel h2 { margin: 0; }
+.panel label { display: grid; gap: 6px; color: #45495f; text-transform: capitalize; }
+.panel button, .actions button { border: 0; border-radius: 8px; padding: 10px 12px; background: #2454d6; color: white; cursor: pointer; }
+.list { display: grid; gap: 12px; }
+.card { display: flex; justify-content: space-between; gap: 16px; padding: 16px; }
+.card h3 { margin: 0 0 6px; }
+.card p { margin: 0 0 8px; color: #51566d; }
+.card small { color: #71768b; }
+.actions { display: flex; gap: 8px; align-items: start; }
+.actions button:last-child { background: #c53232; }
+.error { padding: 12px 14px; margin-bottom: 16px; border-radius: 8px; background: #fff1f1; color: #9f1d1d; }
+@media (max-width: 760px) { .shell { padding: 18px; } .header, .card { flex-direction: column; align-items: stretch; } .grid { grid-template-columns: 1fr; } }

@@ -1,0 +1,86 @@
+.app {
+  min-height: 100vh;
+  padding: 2rem;
+}
+
+.shell {
+  margin: 0 auto;
+  max-width: 1180px;
+}
+
+.header,
+.tabs,
+.actions {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: space-between;
+}
+
+.tabs {
+  justify-content: flex-start;
+  margin-bottom: 1rem;
+}
+
+.grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+
+.panel,
+.form,
+.tableWrap {
+  background: white;
+  border: 1px solid #dbe2ec;
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.form {
+  display: grid;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.input,
+.select,
+.textarea {
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  padding: 0.65rem 0.75rem;
+  width: 100%;
+}
+
+.table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.table th,
+.table td {
+  border-bottom: 1px solid #edf1f7;
+  padding: 0.7rem;
+  text-align: left;
+}
+
+.budget {
+  border-left: 6px solid #0f766e;
+  margin-bottom: 0.75rem;
+  padding-left: 0.75rem;
+}
+
+.warning {
+  border-left-color: #f59e0b;
+}
+
+.exceeded {
+  border-left-color: #dc2626;
+}
+
+@media (max-width: 760px) {
+  .app {
+    padding: 1rem;
+  }
+}

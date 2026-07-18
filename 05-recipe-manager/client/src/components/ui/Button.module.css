@@ -1,0 +1,17 @@
+.button {
+  border: 0;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 700;
+  padding: 0.65rem 0.9rem;
+}
+
+.primary {
+  background: #1f7a5a;
+  color: #fff;
+}
+
+.ghost {
+  background: #eef4f1;
+  color: #1f4939;
+}

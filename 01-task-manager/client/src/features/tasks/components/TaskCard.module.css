@@ -1,0 +1,144 @@
+.card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 16px;
+  align-items: start;
+  border: 1px solid var(--color-border);
+  border-left: 4px solid var(--color-primary);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  padding: 16px;
+  box-shadow: var(--shadow-sm);
+}
+
+.completed {
+  border-left-color: var(--color-success);
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.overdue {
+  border-left-color: var(--color-danger);
+}
+
+.checkColumn {
+  padding-top: 2px;
+}
+
+.check {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+  border: 2px solid var(--color-border-strong);
+  border-radius: 50%;
+  color: #ffffff;
+  background: #ffffff;
+  font-size: 0.88rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.check:hover,
+.check:focus-visible {
+  border-color: var(--color-primary);
+  outline: none;
+}
+
+.checked {
+  border-color: var(--color-success);
+  background: var(--color-success);
+}
+
+.checkMark {
+  width: 10px;
+  height: 6px;
+  border-bottom: 2px solid #ffffff;
+  border-left: 2px solid #ffffff;
+  transform: rotate(-45deg);
+}
+
+.content {
+  min-width: 0;
+}
+
+.titleRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.title {
+  min-width: 0;
+  margin: 0;
+  overflow-wrap: anywhere;
+  color: var(--color-text);
+  font-size: 1.08rem;
+  line-height: 1.35;
+  letter-spacing: 0;
+}
+
+.completed .title {
+  color: var(--color-muted);
+  text-decoration: line-through;
+}
+
+.badges {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.description {
+  margin: 8px 0 0;
+  color: var(--color-muted-strong);
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+
+.completed .description {
+  color: var(--color-muted);
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  margin-top: 12px;
+  color: var(--color-muted);
+  font-size: 0.86rem;
+  font-weight: 700;
+}
+
+.dueOverdue {
+  color: var(--color-danger);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+@media (max-width: 760px) {
+  .card {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .actions {
+    grid-column: 1 / -1;
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 560px) {
+  .titleRow {
+    display: grid;
+  }
+
+  .badges {
+    justify-content: flex-start;
+  }
+}

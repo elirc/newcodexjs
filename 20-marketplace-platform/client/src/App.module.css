@@ -1,0 +1,30 @@
+.shell { min-height: 100vh; padding: 28px; background: #f4f6fb; color: #1f2433; }
+.header { display: flex; justify-content: space-between; align-items: center; gap: 18px; margin-bottom: 22px; }
+.header h1 { margin: 0; font-size: 34px; }
+.header p { margin: 0 0 6px; color: #657087; }
+button, input, select, textarea { font: inherit; }
+button { border: 0; border-radius: 8px; padding: 9px 12px; color: white; background: #2454d6; cursor: pointer; }
+input, select, textarea { border: 1px solid #d9deea; border-radius: 8px; padding: 10px 12px; width: 100%; background: white; }
+textarea { min-height: 100px; resize: vertical; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
+.metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-bottom: 16px; }
+.metrics article, .panel, .card, .sidePanel, .detailPanel { background: #fff; border: 1px solid #e2e6f0; border-radius: 8px; box-shadow: 0 12px 28px rgba(25, 32, 56, 0.06); }
+.metrics article { padding: 16px; }
+.metrics span { font-size: 28px; font-weight: 800; }
+.metrics p { margin: 4px 0 0; color: #657087; }
+.filters, .bulkBar { display: grid; grid-template-columns: 1.5fr 1fr 1fr auto; gap: 12px; align-items: center; margin-bottom: 14px; }
+.bulkBar { grid-template-columns: auto repeat(5, auto); justify-content: start; }
+.grid { display: grid; grid-template-columns: 340px minmax(0, 1.2fr) 300px 320px; gap: 16px; align-items: start; }
+.panel, .sidePanel, .detailPanel { padding: 16px; display: grid; gap: 12px; }
+.panel h2, .sidePanel h2, .detailPanel h2 { margin: 0; }
+.panel label { display: grid; gap: 6px; color: #475069; text-transform: capitalize; }
+.list { display: grid; gap: 12px; }
+.card { padding: 14px; display: grid; grid-template-columns: auto 1fr auto; gap: 14px; align-items: start; }
+.card h3 { margin: 0 0 6px; }
+.card p { margin: 0 0 8px; color: #525d73; }
+.card code, .sidePanel pre { display: block; white-space: pre-wrap; color: #40506d; font-size: 12px; }
+.actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
+.actions button:nth-child(3) { background: #bc3434; }
+.sidePanel article, .detailPanel article { border-top: 1px solid #edf0f7; padding-top: 10px; }
+.sidePanel p, .detailPanel p { margin: 4px 0 0; color: #5c667d; }
+.error { padding: 12px 14px; border-radius: 8px; background: #fff1f1; color: #9b1d1d; margin-bottom: 16px; }
+@media (max-width: 1300px) { .grid { grid-template-columns: 1fr; } .metrics, .filters, .bulkBar { grid-template-columns: 1fr; } .header { flex-direction: column; align-items: stretch; } }
