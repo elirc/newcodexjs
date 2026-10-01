@@ -1,0 +1,77 @@
+# Codebase map and reading order
+
+[Course index](README.md)
+
+## The problem this project solves
+
+Restore always assigned active, even when that was not a valid workflow state. Bulk updates could silently ignore missing IDs and audit entries lacked the actual previous record. The improvement you will study is: Archive stores the previous status in an additive migration, restore returns to that status, and repeats are no-ops. Ordinary and bulk status changes keep archive flags consistent. Bulk IDs are deduplicated; all targets are locked and checked before any change. Audit rows contain real before/after records. List refreshes ignore stale responses and use the current filters after a mutation; failed saves retain the draft and show an error. The sample seed uses the actual title column.
+
+## Data model
+
+tickets belong to the grouping reference team_id. Records have title, owner, priority, status, metadata, due_at, risk_level, version, archived_at and deleted_at. Status vocabulary: open, pending, escalated, resolved, archived. The new nullable status_before_archive column remembers the earlier state. Comments, activity_events and audit_log reference records.
+
+An object is a named collection of fields. An array is an ordered collection of values. An id answers “which record?”; an index answers “where is it in this array right now?” Those questions are different whenever the list can be filtered, reordered or edited. Persisted data is the form that must survive a process/page restart. Derived data can be recomputed from that persisted state.
+
+## Trace one action
+
+1. A React form, button or test sends a concrete operation.
+2. The client serializes editable values as an HTTP request.
+3. The server validates runtime input and the relevant record relationships.
+4. The repository or model reads authoritative state and performs the documented change.
+5. The storage boundary commits or rejects the operation.
+6. The response or broadcast gives the client its observed result.
+
+```mermaid
+flowchart LR
+    A[Input or user action] --> B[Validate and normalize]
+    B --> C[Compute intended change]
+    C --> D[Commit at the state boundary]
+    D --> E[Return or render observed state]
+    B --> F[Explain invalid input]
+    D --> G[Handle a failed write]
+```
+
+This diagram names responsibilities, not necessarily separate files. A small browser program can keep them in app.js. A larger API spreads them across controllers, services and models. Follow the actual sequence above rather than assuming every repository has the same architecture.
+
+## Where to read first
+
+1. [server/src/models/model.ts](../server/src/models/model.ts): locate `lifecycleUpdate` and read its inputs, branches and return/side effects.
+2. [test/crud.test.ts](../test/crud.test.ts): read the scenario names before the helper code.
+3. The root [README](../README.md): connect setup and the larger application workflow.
+
+## Source navigation
+
+- [client/src/App.tsx](../client/src/App.tsx)
+- [client/src/main.tsx](../client/src/main.tsx)
+- [client/src/services/api.ts](../client/src/services/api.ts)
+- [client/src/types.ts](../client/src/types.ts)
+- [client/src/vite-env.d.ts](../client/src/vite-env.d.ts)
+- [client/vite.config.ts](../client/vite.config.ts)
+- [server/db/migrations/001_init.ts](../server/db/migrations/001_init.ts)
+- [server/db/migrations/002_enterprise_features.ts](../server/db/migrations/002_enterprise_features.ts)
+- [server/db/migrations/003_archive_status.ts](../server/db/migrations/003_archive_status.ts)
+- [server/db/seeds/001_seed.ts](../server/db/seeds/001_seed.ts)
+- [server/knexfile.ts](../server/knexfile.ts)
+- [server/scripts/database.ts](../server/scripts/database.ts)
+- [server/src/app.ts](../server/src/app.ts)
+- [server/src/config/db.ts](../server/src/config/db.ts)
+- [server/src/config/env.ts](../server/src/config/env.ts)
+- [server/src/controllers/controller.ts](../server/src/controllers/controller.ts)
+- [server/src/middleware/errorMiddleware.ts](../server/src/middleware/errorMiddleware.ts)
+- [server/src/middleware/requestContext.ts](../server/src/middleware/requestContext.ts)
+- [server/src/models/model.ts](../server/src/models/model.ts)
+- [server/src/routes/routes.ts](../server/src/routes/routes.ts)
+- [server/src/server.ts](../server/src/server.ts)
+- [server/src/services/service.ts](../server/src/services/service.ts)
+- [server/src/utils/errors.ts](../server/src/utils/errors.ts)
+- [server/src/utils/response.ts](../server/src/utils/response.ts)
+
+## A practical reading technique
+
+At each function boundary, write down the value coming in, the value going out and any side effect. A side effect includes a storage write, SQL query, network request, timer registration or DOM update. If a function calls another function, inspect only that next dependency until you can finish the chosen trace. Return to unrelated files later.
+
+For this lesson, start with: **Create a record in pending, archive it twice and restore it twice. Only the actual transitions add history, and restore returns pending. Bulk-update [existingId,999999]: return 404 and leave the existing row unchanged. A duplicated valid ID changes once and audit.before/status differs from audit.after/status.** Mark where the id, time, amount or other important value changes representation. For example, JSON serializes values into text; a date field may be a calendar string; SQL aggregates may return a different type from individual rows. Representation changes are common bug locations.
+
+## Check your understanding
+
+Without reading the solution, answer: Who owns the mutable state? Which input is untrusted? Which function first decides whether the operation is valid? What survives reload or restart? What observation would prove that the operation partially failed? Point to a source file for each answer, rather than describing a generic app from memory.

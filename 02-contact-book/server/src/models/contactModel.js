@@ -56,6 +56,7 @@ async function listContacts(options) {
   const rows = await baseContactQuery(options)
     .distinct("contacts.*")
     .orderBy(`contacts.${sort}`, order)
+    .orderBy("contacts.id", "asc")
     .limit(limit)
     .offset((page - 1) * limit);
   return { rows, total: Number(countRow.count) };
@@ -155,7 +156,27 @@ async function findTagsForContacts(contactIds) {
   }, new Map());
 }
 
+/** One transaction covers contacts, tag creation and junction rows. */
+async function importContactBatch(batch) {
+  return db.transaction(async (trx) => {
+    const contacts = [];
+    for (const { contact, tags } of batch) {
+      const [created] = await trx('contacts').insert(contact).returning('*');
+      const attached = [];
+      for (const name of tags) {
+        await trx('tags').insert({ name }).onConflict('name').ignore();
+        const tag = await trx('tags').where({ name }).first();
+        await trx('contact_tags').insert({ contact_id: created.id, tag_id: tag.id });
+        attached.push(tag);
+      }
+      contacts.push({ ...created, tags: attached });
+    }
+    return contacts;
+  });
+}
+
 module.exports = {
+  importContactBatch,
   listContacts,
   findContactById,
   findAllContacts,

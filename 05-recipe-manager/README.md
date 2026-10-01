@@ -28,3 +28,7 @@ All seeded users use password `password123`.
 - Recipe creation stores recipe, ingredients, steps, and categories in one transaction.
 
 See [docs/architecture.md](docs/architecture.md) for the layer map and tradeoffs.
+
+## Junior SWE learning course
+
+[Start the detailed Astra upskilling course](astraupskill/README.md): authentication versus authorization, runtime validation and rollback, with a codebase map, worked implementation, executable examples, debugging labs, exercises and solution discussions.

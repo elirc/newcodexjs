@@ -215,3 +215,10 @@
     border-bottom: 1px solid #d6dfdc;
   }
 }
+
+@media (max-width: 600px) {
+  .topbar { flex-wrap: wrap; }
+  .workspace { grid-template-columns: minmax(0, 1fr); }
+  .sidebar, .builder, .response { min-width: 0; }
+  .topbar > * { max-width: 100%; min-width: 0; }
+}

@@ -9,4 +9,3 @@ export function sendSuccess<T>(res: Response, data: T, status = 200): void {
 export function orderNumber(): string {
   return `ORD-${Date.now().toString(36).toUpperCase()}`;
 }
-

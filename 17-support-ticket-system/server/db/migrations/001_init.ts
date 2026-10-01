@@ -9,7 +9,11 @@ export async function up(knex: Knex): Promise<void> {
 
   await knex.schema.createTable("tickets", (table) => {
     table.increments("id").primary();
-    table.integer("team_id").references("id").inTable("teams").onDelete("CASCADE");
+    table
+      .integer("team_id")
+      .references("id")
+      .inTable("teams")
+      .onDelete("CASCADE");
     table.string("title", 220).notNullable();
     table.string("status", 40).notNullable().defaultTo("active");
     table.string("priority", 40).notNullable().defaultTo("medium");
@@ -21,7 +25,11 @@ export async function up(knex: Knex): Promise<void> {
 
   await knex.schema.createTable("activity_events", (table) => {
     table.increments("id").primary();
-    table.integer("ticket_id").references("id").inTable("tickets").onDelete("CASCADE");
+    table
+      .integer("ticket_id")
+      .references("id")
+      .inTable("tickets")
+      .onDelete("CASCADE");
     table.string("event_type", 80).notNullable();
     table.text("message").notNullable();
     table.jsonb("payload").notNullable().defaultTo("{}");

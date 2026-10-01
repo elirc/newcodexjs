@@ -1,4 +1,4 @@
-import * as historyModel from "../models/historyModel";
+import * as historyModel from "../models/historyModel.js";
 
 /** Lists request history for the current user. */
 export async function listHistory(userId: number, page = 1, limit = 30) {

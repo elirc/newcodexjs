@@ -34,3 +34,6 @@ The API reads `x-demo-user-id` and defaults to user `1`. This keeps the project 
 
 See [docs/architecture.md](docs/architecture.md) for design notes.
 
+## Junior SWE learning course
+
+[Start the detailed Astra upskilling course](astraupskill/README.md): membership predicates and shared route guards, with a codebase map, worked implementation, executable examples, debugging labs, exercises and solution discussions.

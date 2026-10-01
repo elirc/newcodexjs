@@ -11,10 +11,13 @@ const paymentMethods = ["cash", "credit_card", "debit_card", "bank_transfer", "o
  */
 function parseExpense(payload) {
   const amount = Number(payload.amount);
-  if (!amount || amount <= 0) throw new ValidationError("Amount must be greater than zero");
+  if (!Number.isFinite(amount)) throw new ValidationError("Amount must be a finite number");
+  if (amount <= 0) throw new ValidationError("Amount must be greater than zero");
+  if (Math.abs(amount * 100 - Math.round(amount * 100)) > 0.00001) throw new ValidationError("Amount may have at most two decimal places");
+  if (amount > 99999999.99) throw new ValidationError("Amount must not exceed 99,999,999.99");
   if (!payload.description?.trim()) throw new ValidationError("Description is required");
   if (!payload.category_id) throw new ValidationError("Category is required");
-  if (!payload.expense_date) throw new ValidationError("Expense date is required");
+  validDate(payload.expense_date);
   const recurringInterval = payload.is_recurring ? payload.recurring_interval : null;
   if (recurringInterval && !["weekly", "monthly"].includes(recurringInterval)) throw new ValidationError("Recurring interval must be weekly or monthly");
   return {
@@ -35,7 +38,7 @@ function parseExpense(payload) {
  * @returns {Promise<Array<object>>}
  */
 async function listExpenses(query) {
-  return model.listExpenses(query);
+  return model.listExpenses(validFilters(query));
 }
 
 /**
@@ -87,7 +90,7 @@ async function deleteExpense(id) {
  * @returns {Promise<string>}
  */
 async function exportExpenses(query) {
-  return expensesToCsv(await model.listExpenses(query));
+  return expensesToCsv(await model.listExpenses(validFilters(query)));
 }
 
 /**
@@ -167,6 +170,24 @@ async function deleteBudget(id) {
   return { id };
 }
 
+function validDate(value) {
+  if (typeof value !== 'string' || value.startsWith('0000-') || !/^\d{4}-\d{2}-\d{2}$/.test(value)) throw new ValidationError('Use a YYYY-MM-DD date');
+  const date = new Date(`${value}T00:00:00Z`);
+  if (!Number.isFinite(date.getTime()) || date.toISOString().slice(0,10) !== value) throw new ValidationError('Use a real calendar date');
+  return value;
+}
+function validMonth(value) {
+  if (typeof value !== 'string' || value.startsWith('0000-') || !/^\d{4}-(0[1-9]|1[0-2])$/.test(value)) throw new ValidationError('Use a YYYY-MM month');
+  return value;
+}
+function validFilters(query = {}) {
+  if (query.start_date) validDate(query.start_date);
+  if (query.end_date) validDate(query.end_date);
+  if (query.start_date && query.end_date && query.start_date > query.end_date) throw new ValidationError('start_date must not follow end_date');
+  if (query.category_id && (!Number.isSafeInteger(Number(query.category_id)) || Number(query.category_id) < 1)) throw new ValidationError('category_id must be a positive integer');
+  return query;
+}
+
 module.exports = {
   listExpenses,
   getExpense,
@@ -181,8 +202,8 @@ module.exports = {
   listBudgets,
   upsertBudget,
   deleteBudget,
-  monthlySummary: model.monthlySummary,
-  byCategory: model.byCategory,
-  dailyTrend: model.dailyTrend,
-  weeklyTrend: model.weeklyTrend
+  monthlySummary: (month) => model.monthlySummary(validMonth(month)),
+  byCategory: (filters) => model.byCategory(validFilters(filters)),
+  dailyTrend: (month) => model.dailyTrend(validMonth(month)),
+  weeklyTrend: (start) => model.weeklyTrend(validDate(start))
 };

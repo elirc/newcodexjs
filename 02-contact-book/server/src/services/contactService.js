@@ -8,23 +8,19 @@ const { contactsToCsv, csvToContacts } = require("../utils/csv");
  * @returns {{contact: object, tagIds: number[]}}
  */
 function parseContactPayload(payload) {
-  if (!payload.first_name?.trim() || !payload.last_name?.trim()) {
-    throw new ValidationError("First name and last name are required");
+  if (!payload || typeof payload !== 'object' || Array.isArray(payload)) throw new ValidationError('Contact must be an object');
+  const limits = { first_name:100, last_name:100, email:255, phone:30, company:255, street_address:255, city:100, state:100, zip_code:20, country:100, notes:100000 };
+  const contact = {};
+  for (const [key, limit] of Object.entries(limits)) {
+    const value = payload[key];
+    if (value != null && typeof value !== 'string') throw new ValidationError(`${key} must be text`);
+    if (value && value.trim().length > limit) throw new ValidationError(`${key} exceeds ${limit} characters`);
+    contact[key] = value?.trim() || null;
   }
-  const tagIds = Array.isArray(payload.tagIds) ? payload.tagIds.map(Number).filter(Boolean) : [];
-  const contact = {
-    first_name: payload.first_name.trim(),
-    last_name: payload.last_name.trim(),
-    email: payload.email?.trim() || null,
-    phone: payload.phone?.trim() || null,
-    company: payload.company?.trim() || null,
-    street_address: payload.street_address?.trim() || null,
-    city: payload.city?.trim() || null,
-    state: payload.state?.trim() || null,
-    zip_code: payload.zip_code?.trim() || null,
-    country: payload.country?.trim() || null,
-    notes: payload.notes?.trim() || null
-  };
+  if (!contact.first_name || !contact.last_name) throw new ValidationError('First name and last name are required');
+  if (contact.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact.email)) throw new ValidationError('Email must be valid');
+  const tagIds = [...new Set(Array.isArray(payload.tagIds) ? payload.tagIds.map(Number) : [])];
+  if (tagIds.some((id) => !Number.isSafeInteger(id) || id < 1)) throw new ValidationError('Tag ids must be positive integers');
   return { contact, tagIds };
 }
 
@@ -44,8 +40,10 @@ async function withTags(contacts) {
  * @returns {Promise<object>}
  */
 async function listContacts(query) {
-  const page = Math.max(Number(query.page || 1), 1);
-  const limit = Math.min(Math.max(Number(query.limit || 20), 1), 100);
+  const page = Number(query.page ?? 1);
+  const limit = Number(query.limit ?? 20);
+  if (!Number.isSafeInteger(page) || page < 1 || !Number.isInteger(limit) || limit < 1 || limit > 100 || !Number.isSafeInteger((page - 1) * limit))
+    throw new ValidationError('page must be a positive integer and limit must be from 1 to 100');
   const { rows, total } = await contactModel.listContacts({ ...query, page, limit });
   return { contacts: await withTags(rows), pagination: { page, limit, total, pages: Math.ceil(total / limit) } };
 }
@@ -124,15 +122,23 @@ async function exportContacts() {
  * @returns {Promise<object>}
  */
 async function importContacts(csv) {
-  if (!csv?.trim()) throw new ValidationError("CSV text is required");
   const rows = csvToContacts(csv);
-  const created = [];
-  for (const row of rows) {
-    if (row.first_name && row.last_name) {
-      created.push(await contactModel.createContact(parseContactPayload(row).contact));
-    }
+  // Parse every row before opening a transaction: invalid row 20 saves no rows.
+  const batch = rows.map((row, index) => {
+    try {
+      const { contact } = parseContactPayload(row);
+      const tags = [...new Set((row.tags || '').split('|').map((tag) => tag.trim()).filter(Boolean))];
+      if (tags.some((tag) => tag.length > 50)) throw new ValidationError('Tag names must be 50 characters or fewer');
+      return { contact, tags };
+    } catch (error) { throw new ValidationError(`CSV record ${index + 2}: ${error.message}`); }
+  });
+  try {
+    const created = await contactModel.importContactBatch(batch);
+    return { imported: created.length, contacts: created };
+  } catch (error) {
+    if (error.code === '23505') throw new ValidationError('An email already exists or is repeated in the CSV; no contacts were imported');
+    throw error;
   }
-  return { imported: created.length, contacts: created };
 }
 
 module.exports = { listContacts, getContact, createContact, updateContact, deleteContact, bulkDelete, exportContacts, importContacts };

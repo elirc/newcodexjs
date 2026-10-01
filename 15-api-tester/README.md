@@ -23,3 +23,7 @@ The frontend expects the API at `http://localhost:4215/api` and runs on `http://
 ## Tradeoffs
 
 Drag-and-drop is represented structurally by the one-level folder tree and sort fields, but the UI does not implement pointer-based reordering. Timing is measured as total elapsed proxy time; browser-like DNS/connect/TLS timing is represented as an extensible `timing` object with `totalMs`.
+
+## Junior SWE learning course
+
+[Start the detailed Astra upskilling course](astraupskill/README.md): atomic active selection and validating replacement collections, with a codebase map, worked implementation, executable examples, debugging labs, exercises and solution discussions.

@@ -12,6 +12,7 @@
   "include": [
     "src",
     "knexfile.ts",
-    "db/**/*.ts"
+    "db/**/*.ts",
+    "scripts/**/*.ts"
   ]
 }

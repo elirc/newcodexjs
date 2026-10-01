@@ -28,3 +28,14 @@ textarea { min-height: 100px; resize: vertical; font-family: ui-monospace, SFMon
 .sidePanel p, .detailPanel p { margin: 4px 0 0; color: #5c667d; }
 .error { padding: 12px 14px; border-radius: 8px; background: #fff1f1; color: #9b1d1d; margin-bottom: 16px; }
 @media (max-width: 1300px) { .grid { grid-template-columns: 1fr; } .metrics, .filters, .bulkBar { grid-template-columns: 1fr; } .header { flex-direction: column; align-items: stretch; } }
+
+/* Allow long status labels and record content to fit narrow screens. */
+.shell, .shell > *, .shell article, .shell section { min-width: 0; }
+.shell { overflow-wrap: anywhere; }
+.shell input, .shell select, .shell textarea { min-width: 0; max-width: 100%; }
+
+@media (max-width: 600px) {
+ .card { grid-template-columns: 20px minmax(0, 1fr); }
+ .card .actions { grid-column: 2; justify-content: flex-start; }
+ .card > input[type="checkbox"] { width: 16px; }
+}

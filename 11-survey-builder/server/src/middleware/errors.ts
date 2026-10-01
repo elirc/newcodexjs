@@ -27,11 +27,16 @@ export class ValidationError extends AppError {
 }
 
 /** Converts thrown errors into the shared error response envelope. */
-export function errorMiddleware(error: Error, _req: Request, res: Response, _next: NextFunction): void {
-  const appError = error instanceof AppError ? error : new AppError("Unexpected server error");
+export function errorMiddleware(
+  error: Error,
+  _req: Request,
+  res: Response,
+  _next: NextFunction,
+): void {
+  const appError =
+    error instanceof AppError ? error : new AppError("Unexpected server error");
   res.status(appError.statusCode).json({
     success: false,
-    error: { message: appError.message, code: appError.code }
+    error: { message: appError.message, code: appError.code },
   });
 }
-

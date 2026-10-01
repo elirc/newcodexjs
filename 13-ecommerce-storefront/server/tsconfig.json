@@ -9,6 +9,10 @@
     "esModuleInterop": true,
     "skipLibCheck": true
   },
-  "include": ["src", "db", "knexfile.ts"]
+  "include": [
+    "src",
+    "db",
+    "knexfile.ts",
+    "scripts/**/*.ts"
+  ]
 }
-

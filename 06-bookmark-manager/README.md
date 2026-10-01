@@ -39,3 +39,7 @@ Client: `http://localhost:5173`
 ## Notes
 
 This project is intentionally educational: controllers stay thin, services hold validation and business rules, models own Knex queries, and responses use the standard success/error envelope.
+
+## Junior SWE learning course
+
+[Start the detailed Astra upskilling course](astraupskill/README.md): runtime schemas, outbound policy and controlled network tests, with a codebase map, worked implementation, executable examples, debugging labs, exercises and solution discussions.

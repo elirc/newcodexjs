@@ -1,29 +1,58 @@
-import { db } from "../config/db";
+import { db } from "../config/db.js";
 
 /** Lists collections with one-level folders and saved requests. */
 export async function listCollectionTree(userId: number) {
-  const collections = await db("collections").where({ user_id: userId }).orderBy("sort_order", "asc");
+  const collections = await db("collections")
+    .where({ user_id: userId })
+    .orderBy("sort_order", "asc");
   const collectionIds = collections.map((collection) => collection.id);
-  const folders = collectionIds.length ? await db("folders").whereIn("collection_id", collectionIds).orderBy("sort_order", "asc") : [];
-  const requests = collectionIds.length ? await db("saved_requests").where({ user_id: userId }).whereIn("collection_id", collectionIds).orderBy("sort_order", "asc") : [];
+  const folders = collectionIds.length
+    ? await db("folders")
+        .whereIn("collection_id", collectionIds)
+        .orderBy("sort_order", "asc")
+    : [];
+  const requests = collectionIds.length
+    ? await db("saved_requests")
+        .where({ user_id: userId })
+        .whereIn("collection_id", collectionIds)
+        .orderBy("sort_order", "asc")
+    : [];
   return collections.map((collection) => ({
     ...collection,
     folders: folders
       .filter((folder) => folder.collection_id === collection.id)
-      .map((folder) => ({ ...folder, requests: requests.filter((request) => request.folder_id === folder.id) })),
-    requests: requests.filter((request) => request.collection_id === collection.id && !request.folder_id)
+      .map((folder) => ({
+        ...folder,
+        requests: requests.filter((request) => request.folder_id === folder.id),
+      })),
+    requests: requests.filter(
+      (request) =>
+        request.collection_id === collection.id && !request.folder_id,
+    ),
   }));
 }
 
 /** Creates a collection. */
-export async function createCollection(userId: number, values: Record<string, unknown>) {
-  const [collection] = await db("collections").insert({ ...values, user_id: userId }).returning("*");
+export async function createCollection(
+  userId: number,
+  values: Record<string, unknown>,
+) {
+  const [collection] = await db("collections")
+    .insert({ ...values, user_id: userId })
+    .returning("*");
   return collection;
 }
 
 /** Updates a collection. */
-export async function updateCollection(id: number, userId: number, values: Record<string, unknown>) {
-  const [collection] = await db("collections").where({ id, user_id: userId }).update({ ...values, updated_at: db.fn.now() }).returning("*");
+export async function updateCollection(
+  id: number,
+  userId: number,
+  values: Record<string, unknown>,
+) {
+  const [collection] = await db("collections")
+    .where({ id, user_id: userId })
+    .update({ ...values, updated_at: db.fn.now() })
+    .returning("*");
   return collection;
 }
 
@@ -33,14 +62,25 @@ export async function deleteCollection(id: number, userId: number) {
 }
 
 /** Creates a one-level folder inside a collection. */
-export async function createFolder(collectionId: number, values: Record<string, unknown>) {
-  const [folder] = await db("folders").insert({ ...values, collection_id: collectionId }).returning("*");
+export async function createFolder(
+  collectionId: number,
+  values: Record<string, unknown>,
+) {
+  const [folder] = await db("folders")
+    .insert({ ...values, collection_id: collectionId })
+    .returning("*");
   return folder;
 }
 
 /** Updates a collection folder. */
-export async function updateFolder(id: number, values: Record<string, unknown>) {
-  const [folder] = await db("folders").where({ id }).update(values).returning("*");
+export async function updateFolder(
+  id: number,
+  values: Record<string, unknown>,
+) {
+  const [folder] = await db("folders")
+    .where({ id })
+    .update(values)
+    .returning("*");
   return folder;
 }
 

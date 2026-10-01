@@ -8,7 +8,8 @@
     "start": "node dist/server.js",
     "migrate": "knex --knexfile knexfile.ts migrate:latest",
     "rollback": "knex --knexfile knexfile.ts migrate:rollback",
-    "seed": "knex --knexfile knexfile.ts seed:run"
+    "seed": "knex --knexfile knexfile.ts seed:run",
+    "test": "tsx --test test/*.test.ts"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

@@ -34,3 +34,6 @@ Authenticated routes use `x-demo-user-id`. Guest cart routes use `x-session-id`,
 
 See [docs/architecture.md](docs/architecture.md) for design notes.
 
+## Junior SWE learning course
+
+[Start the detailed Astra upskilling course](astraupskill/README.md): locking shared inventory and preserving a failed checkout, with a codebase map, worked implementation, executable examples, debugging labs, exercises and solution discussions.

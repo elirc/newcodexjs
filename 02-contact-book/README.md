@@ -17,3 +17,7 @@ Full-stack JavaScript contact manager with React 18, Express, PostgreSQL, and Kn
 - CSV export plus CSV import by sending CSV text to `/api/contacts/import`.
 
 See `docs/architecture.md` for the layer-by-layer design.
+
+## Junior SWE learning course
+
+[Start the detailed Astra upskilling course](astraupskill/README.md): parsing state machines, batch validation and transactions, with a codebase map, worked implementation, executable examples, debugging labs, exercises and solution discussions.

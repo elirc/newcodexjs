@@ -38,7 +38,7 @@ function toDateOnly(date) {
 function parseTaskId(value) {
   const id = Number(value);
 
-  if (!Number.isInteger(id) || id < 1) {
+  if (!Number.isSafeInteger(id) || id < 1 || id > 2147483647) {
     throw new ValidationError('Task id must be a positive integer.');
   }
 
@@ -112,6 +112,8 @@ function normalizeTitle(value) {
 
   const title = sanitizeString(value);
 
+  if (title.length > 255) throw new ValidationError('Title must be 255 characters or fewer.');
+
   if (title.length === 0) {
     throw new ValidationError('Title is required.');
   }
@@ -124,7 +126,7 @@ function normalizeTitle(value) {
  *
  * @param {unknown} value - Raw description from the request body.
  * @returns {string|null} Sanitized description or null.
- * @throws {ValidationError} When description is neither text nor null.
+ * @throws {ValidationError} When description is neither text nor null, or is too long.
  */
 function normalizeDescription(value) {
   if (value === undefined || value === null) {
@@ -136,6 +138,12 @@ function normalizeDescription(value) {
   }
 
   const description = sanitizeString(value);
+
+  // The column is `text`, so PostgreSQL will not stop an unbounded value; the bound
+  // is a product decision about what the API accepts, not a column-width match.
+  if (description.length > 5000) {
+    throw new ValidationError('Description must be 5000 characters or fewer.');
+  }
 
   if (description.length === 0) {
     return null;
@@ -264,7 +272,9 @@ function buildUpdatePayload(payload, existingTask) {
   }
 
   if (hasOwn(payload, 'due_date')) {
-    updates.due_date = normalizeDueDate(payload.due_date);
+    // An overdue task must remain editable when its existing date is submitted.
+    const existingDate = existingTask.due_date ? toDateOnly(new Date(existingTask.due_date)) : null;
+    updates.due_date = payload.due_date === existingDate ? existingDate : normalizeDueDate(payload.due_date);
   }
 
   if (Object.keys(updates).length === 0) {

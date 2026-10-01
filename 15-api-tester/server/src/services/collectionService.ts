@@ -1,6 +1,6 @@
-import * as collectionModel from "../models/collectionModel";
-import * as requestModel from "../models/requestModel";
-import { NotFoundError } from "../utils/errors";
+import * as collectionModel from "../models/collectionModel.js";
+import * as requestModel from "../models/requestModel.js";
+import { NotFoundError } from "../utils/errors.js";
 
 /** Lists the sidebar collection tree. */
 export async function listCollections(userId: number) {
@@ -8,12 +8,19 @@ export async function listCollections(userId: number) {
 }
 
 /** Creates a collection. */
-export async function createCollection(userId: number, values: Record<string, unknown>) {
+export async function createCollection(
+  userId: number,
+  values: Record<string, unknown>,
+) {
   return collectionModel.createCollection(userId, values);
 }
 
 /** Updates a collection or throws when missing. */
-export async function updateCollection(userId: number, id: number, values: Record<string, unknown>) {
+export async function updateCollection(
+  userId: number,
+  id: number,
+  values: Record<string, unknown>,
+) {
   const collection = await collectionModel.updateCollection(id, userId, values);
   if (!collection) throw new NotFoundError("Collection not found");
   return collection;
@@ -25,8 +32,16 @@ export async function deleteCollection(userId: number, id: number) {
 }
 
 /** Imports request JSON into a collection. */
-export async function importCollection(userId: number, collectionId: number, payload: { requests?: Array<Record<string, unknown>> }) {
-  return requestModel.importRequests(userId, collectionId, payload.requests ?? []);
+export async function importCollection(
+  userId: number,
+  collectionId: number,
+  payload: { requests?: Array<Record<string, unknown>> },
+) {
+  return requestModel.importRequests(
+    userId,
+    collectionId,
+    payload.requests ?? [],
+  );
 }
 
 /** Exports one collection tree. */
@@ -37,12 +52,18 @@ export async function exportCollection(userId: number, id: number) {
 }
 
 /** Creates a folder in a collection. */
-export async function createFolder(collectionId: number, values: Record<string, unknown>) {
+export async function createFolder(
+  collectionId: number,
+  values: Record<string, unknown>,
+) {
   return collectionModel.createFolder(collectionId, values);
 }
 
 /** Updates a folder. */
-export async function updateFolder(id: number, values: Record<string, unknown>) {
+export async function updateFolder(
+  id: number,
+  values: Record<string, unknown>,
+) {
   const folder = await collectionModel.updateFolder(id, values);
   if (!folder) throw new NotFoundError("Folder not found");
   return folder;
@@ -61,12 +82,19 @@ export async function getSavedRequest(userId: number, id: number) {
 }
 
 /** Saves a request to a collection or folder. */
-export async function saveRequest(userId: number, values: Record<string, unknown>) {
+export async function saveRequest(
+  userId: number,
+  values: Record<string, unknown>,
+) {
   return requestModel.createSavedRequest(userId, values);
 }
 
 /** Updates a saved request. */
-export async function updateRequest(userId: number, id: number, values: Record<string, unknown>) {
+export async function updateRequest(
+  userId: number,
+  id: number,
+  values: Record<string, unknown>,
+) {
   const request = await requestModel.updateSavedRequest(id, userId, values);
   if (!request) throw new NotFoundError("Request not found");
   return request;

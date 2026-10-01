@@ -6,8 +6,9 @@
     "dev": "tsx watch src/server.ts",
     "build": "tsc -p tsconfig.json",
     "start": "node dist/src/server.js",
-    "migrate": "knex --knexfile knexfile.ts migrate:latest",
-    "seed": "knex --knexfile knexfile.ts seed:run"
+    "migrate": "tsx scripts/database.ts migrate",
+    "seed": "tsx scripts/database.ts seed",
+    "test": "tsx --test ../test/*.test.ts"
   },
   "dependencies": {
     "express": "^4.21.2",
@@ -24,6 +25,7 @@
     "@types/morgan": "^1.9.9",
     "@types/node": "^22.10.2",
     "tsx": "^4.19.2",
-    "typescript": "^5.7.2"
+    "typescript": "^5.7.2",
+    "@types/pg": "^8.11.10"
   }
 }

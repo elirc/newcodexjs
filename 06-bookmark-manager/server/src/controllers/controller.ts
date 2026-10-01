@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
-import * as service from "../services/service";
-import { sendSuccess } from "../utils/response";
+import * as service from "../services/service.js";
+import { sendSuccess } from "../utils/response.js";
 
 /** Handles list requests. */
 export async function list(req: Request, res: Response) { return sendSuccess(res, await service.list(req.query as { search?: string; status?: string })); }
@@ -14,3 +14,6 @@ export async function update(req: Request, res: Response) { return sendSuccess(r
 export async function remove(req: Request, res: Response) { return sendSuccess(res, await service.remove(req.params.id)); }
 /** Handles stats requests. */
 export async function stats(req: Request, res: Response) { return sendSuccess(res, await service.getStats()); }
+
+/** Explicit metadata preview; it never saves or changes a bookmark. */
+export async function metadata(req: Request, res: Response) { return sendSuccess(res, await service.metadata(req.body)); }

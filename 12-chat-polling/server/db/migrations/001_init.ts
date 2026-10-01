@@ -26,7 +26,12 @@ export async function up(knex: Knex): Promise<void> {
   });
   await knex.schema.createTable("messages", (table) => {
     table.increments("id").primary();
-    table.integer("conversation_id").notNullable().references("id").inTable("conversations").onDelete("CASCADE");
+    table
+      .integer("conversation_id")
+      .notNullable()
+      .references("id")
+      .inTable("conversations")
+      .onDelete("CASCADE");
     table.integer("user_id").notNullable().references("id").inTable("users");
     table.text("content").notNullable();
     table.boolean("is_edited").notNullable().defaultTo(false);
@@ -35,8 +40,18 @@ export async function up(knex: Knex): Promise<void> {
     table.index(["conversation_id", "created_at"]);
   });
   await knex.schema.createTable("conversation_members", (table) => {
-    table.integer("conversation_id").notNullable().references("id").inTable("conversations").onDelete("CASCADE");
-    table.integer("user_id").notNullable().references("id").inTable("users").onDelete("CASCADE");
+    table
+      .integer("conversation_id")
+      .notNullable()
+      .references("id")
+      .inTable("conversations")
+      .onDelete("CASCADE");
+    table
+      .integer("user_id")
+      .notNullable()
+      .references("id")
+      .inTable("users")
+      .onDelete("CASCADE");
     table.string("role", 20).notNullable().defaultTo("member");
     table.integer("last_read_message_id").references("id").inTable("messages");
     table.timestamp("joined_at").notNullable().defaultTo(knex.fn.now());
@@ -45,15 +60,35 @@ export async function up(knex: Knex): Promise<void> {
   });
   await knex.schema.createTable("reactions", (table) => {
     table.increments("id").primary();
-    table.integer("message_id").notNullable().references("id").inTable("messages").onDelete("CASCADE");
-    table.integer("user_id").notNullable().references("id").inTable("users").onDelete("CASCADE");
+    table
+      .integer("message_id")
+      .notNullable()
+      .references("id")
+      .inTable("messages")
+      .onDelete("CASCADE");
+    table
+      .integer("user_id")
+      .notNullable()
+      .references("id")
+      .inTable("users")
+      .onDelete("CASCADE");
     table.string("emoji", 10).notNullable();
     table.timestamp("created_at").notNullable().defaultTo(knex.fn.now());
     table.unique(["message_id", "user_id", "emoji"]);
   });
   await knex.schema.createTable("typing_indicators", (table) => {
-    table.integer("user_id").notNullable().references("id").inTable("users").onDelete("CASCADE");
-    table.integer("conversation_id").notNullable().references("id").inTable("conversations").onDelete("CASCADE");
+    table
+      .integer("user_id")
+      .notNullable()
+      .references("id")
+      .inTable("users")
+      .onDelete("CASCADE");
+    table
+      .integer("conversation_id")
+      .notNullable()
+      .references("id")
+      .inTable("conversations")
+      .onDelete("CASCADE");
     table.timestamp("started_at").notNullable().defaultTo(knex.fn.now());
     table.primary(["user_id", "conversation_id"]);
   });
@@ -68,4 +103,3 @@ export async function down(knex: Knex): Promise<void> {
   await knex.schema.dropTableIfExists("conversations");
   await knex.schema.dropTableIfExists("users");
 }
-

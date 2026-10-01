@@ -1,7 +1,7 @@
-import * as availabilityModel from "../models/availabilityModel";
-import * as providerModel from "../models/providerModel";
-import * as serviceModel from "../models/serviceModel";
-import { NotFoundError } from "../utils/errors";
+import * as availabilityModel from "../models/availabilityModel.js";
+import * as providerModel from "../models/providerModel.js";
+import * as serviceModel from "../models/serviceModel.js";
+import { NotFoundError } from "../utils/errors.js";
 
 /** Returns provider cards for customer browsing. */
 export async function listProviders(filters: providerModel.ProviderFilters) {
@@ -24,7 +24,10 @@ export async function getOwnProvider(userId: number) {
 }
 
 /** Updates the current provider profile. */
-export async function updateOwnProfile(userId: number, values: Record<string, unknown>) {
+export async function updateOwnProfile(
+  userId: number,
+  values: Record<string, unknown>,
+) {
   const [profile] = await providerModel.updateProviderProfile(userId, values);
   if (!profile) throw new NotFoundError("Provider profile not found");
   return profile;
@@ -37,15 +40,26 @@ export async function listOwnServices(userId: number) {
 }
 
 /** Creates a service for the current provider user. */
-export async function createOwnService(userId: number, values: Record<string, unknown>) {
+export async function createOwnService(
+  userId: number,
+  values: Record<string, unknown>,
+) {
   const provider = await getOwnProvider(userId);
   return serviceModel.createService({ ...values, provider_id: provider.id });
 }
 
 /** Updates a service owned by the current provider user. */
-export async function updateOwnService(userId: number, serviceId: number, values: Record<string, unknown>) {
+export async function updateOwnService(
+  userId: number,
+  serviceId: number,
+  values: Record<string, unknown>,
+) {
   const provider = await getOwnProvider(userId);
-  const service = await serviceModel.updateService(serviceId, provider.id, values);
+  const service = await serviceModel.updateService(
+    serviceId,
+    provider.id,
+    values,
+  );
   if (!service) throw new NotFoundError("Service not found");
   return service;
 }
@@ -59,7 +73,10 @@ export async function deleteOwnService(userId: number, serviceId: number) {
 }
 
 /** Replaces the current provider's weekly availability. */
-export async function setOwnAvailability(userId: number, slots: Array<Record<string, unknown>>) {
+export async function setOwnAvailability(
+  userId: number,
+  slots: Array<Record<string, unknown>>,
+) {
   const provider = await getOwnProvider(userId);
   return availabilityModel.replaceAvailability(provider.id, slots);
 }
@@ -71,13 +88,23 @@ export async function getOwnAvailability(userId: number) {
 }
 
 /** Creates or updates a provider's date-specific availability override. */
-export async function createOwnOverride(userId: number, values: Record<string, unknown>) {
+export async function createOwnOverride(
+  userId: number,
+  values: Record<string, unknown>,
+) {
   const provider = await getOwnProvider(userId);
-  return availabilityModel.upsertOverride({ ...values, provider_id: provider.id });
+  return availabilityModel.upsertOverride({
+    ...values,
+    provider_id: provider.id,
+  });
 }
 
 /** Lists provider override rows for settings and calendar screens. */
-export async function listOwnOverrides(userId: number, startDate?: string, endDate?: string) {
+export async function listOwnOverrides(
+  userId: number,
+  startDate?: string,
+  endDate?: string,
+) {
   const provider = await getOwnProvider(userId);
   return availabilityModel.listOverrides(provider.id, startDate, endDate);
 }

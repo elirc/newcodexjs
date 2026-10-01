@@ -13,7 +13,11 @@ export async function up(knex: Knex): Promise<void> {
 
   await knex.schema.createTable("comments", (table) => {
     table.increments("id").primary();
-    table.integer("task_id").references("id").inTable("tasks").onDelete("CASCADE");
+    table
+      .integer("task_id")
+      .references("id")
+      .inTable("tasks")
+      .onDelete("CASCADE");
     table.string("author", 160).notNullable();
     table.text("body").notNullable();
     table.boolean("is_internal").notNullable().defaultTo(false);
@@ -22,7 +26,11 @@ export async function up(knex: Knex): Promise<void> {
 
   await knex.schema.createTable("saved_views", (table) => {
     table.increments("id").primary();
-    table.integer("workspace_id").references("id").inTable("workspaces").onDelete("CASCADE");
+    table
+      .integer("workspace_id")
+      .references("id")
+      .inTable("workspaces")
+      .onDelete("CASCADE");
     table.string("name", 160).notNullable();
     table.jsonb("filters").notNullable().defaultTo("{}");
     table.string("created_by", 160).notNullable();
@@ -31,7 +39,12 @@ export async function up(knex: Knex): Promise<void> {
 
   await knex.schema.createTable("audit_log", (table) => {
     table.increments("id").primary();
-    table.integer("task_id").nullable().references("id").inTable("tasks").onDelete("SET NULL");
+    table
+      .integer("task_id")
+      .nullable()
+      .references("id")
+      .inTable("tasks")
+      .onDelete("SET NULL");
     table.string("actor", 160).notNullable();
     table.string("action", 80).notNullable();
     table.jsonb("before").nullable();

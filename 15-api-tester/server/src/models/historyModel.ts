@@ -1,16 +1,27 @@
-import { db } from "../config/db";
+import { db } from "../config/db.js";
 
 /** Adds a request execution record for history views. */
-export async function createHistory(userId: number, values: Record<string, unknown>) {
-  const [entry] = await db("request_history").insert({ ...values, user_id: userId }).returning("*");
+export async function createHistory(
+  userId: number,
+  values: Record<string, unknown>,
+) {
+  const [entry] = await db("request_history")
+    .insert({ ...values, user_id: userId })
+    .returning("*");
   return entry;
 }
 
 /** Lists recent history entries with simple pagination. */
 export async function listHistory(userId: number, page: number, limit: number) {
   const offset = (page - 1) * limit;
-  const [{ count }] = await db("request_history").where({ user_id: userId }).count("id as count");
-  const items = await db("request_history").where({ user_id: userId }).orderBy("created_at", "desc").limit(limit).offset(offset);
+  const [{ count }] = await db("request_history")
+    .where({ user_id: userId })
+    .count("id as count");
+  const items = await db("request_history")
+    .where({ user_id: userId })
+    .orderBy("created_at", "desc")
+    .limit(limit)
+    .offset(offset);
   return { items, page, limit, total: Number(count) };
 }
 

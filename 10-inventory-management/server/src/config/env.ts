@@ -13,8 +13,9 @@ export function getEnv() {
       database: process.env.DB_NAME || "inventory_management_dev",
       user: process.env.DB_USER || "postgres",
       password: process.env.DB_PASSWORD || "postgres",
-      ssl: process.env.DB_SSL === "true" ? { rejectUnauthorized: false } : false
-    }
+      ssl:
+        process.env.DB_SSL === "true" ? { rejectUnauthorized: false } : false,
+    },
   } as const;
 }
 

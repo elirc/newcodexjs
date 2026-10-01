@@ -46,3 +46,7 @@ Server defaults to `http://localhost:4117`.
 - `POST /api/tickets/:id/comments`
 
 Read `docs/journal.md` for the engineering decisions and learning notes.
+
+## Junior SWE learning course
+
+[Start the detailed Astra upskilling course](astraupskill/README.md): preserving workflow state and atomic multi-record changes, with a codebase map, worked implementation, executable examples, debugging labs, exercises and solution discussions.

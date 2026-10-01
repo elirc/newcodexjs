@@ -1,5 +1,5 @@
 import type { Knex } from "knex";
-import { env } from "./src/config/env";
+import { env } from "./src/config/env.js";
 
 const config: Record<string, Knex.Config> = {
   development: {
@@ -7,13 +7,13 @@ const config: Record<string, Knex.Config> = {
     connection: env.databaseUrl,
     migrations: {
       directory: "./db/migrations",
-      extension: "ts"
+      extension: "ts",
     },
     seeds: {
       directory: "./db/seeds",
-      extension: "ts"
-    }
-  }
+      extension: "ts",
+    },
+  },
 };
 
 export default config;

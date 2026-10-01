@@ -180,3 +180,7 @@ Manual smoke test:
 ## More Detail
 
 See `docs/architecture.md` for the request flow, database schema, validation patterns, frontend state flow, and decision notes.
+
+## Junior SWE learning course
+
+[Start the detailed Astra upskilling course](astraupskill/README.md): HTTP contracts, service validation and real SQL persistence, with a codebase map, worked implementation, executable examples, debugging labs, exercises and solution discussions.

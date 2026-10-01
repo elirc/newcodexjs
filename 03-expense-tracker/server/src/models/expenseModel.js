@@ -165,6 +165,7 @@ async function monthlySummary(month) {
  */
 async function byCategory(filters) {
   return expenseQuery(filters)
+    .clearSelect()
     .groupBy("categories.id")
     .select("categories.name", "categories.color", db.raw("SUM(expenses.amount)::float as total"), db.raw("COUNT(*)::int as count"))
     .orderBy("total", "desc");

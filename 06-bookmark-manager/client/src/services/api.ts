@@ -1,5 +1,7 @@
 import axios from "axios";
 
+export interface Bookmark { id: number; title: string; url: string; collection: string; status: string; tags: string[] }
+
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || "http://localhost:4106/api",
   headers: { "Content-Type": "application/json" }
@@ -17,7 +19,7 @@ function unwrap<T>(response: { data: { success: boolean; data?: T; error?: { mes
 /** Lists bookmarks for the workspace screen. */
 export async function listRecords(filters = {}) {
   const response = await api.get("/bookmarks", { params: filters });
-  return unwrap(response);
+  return unwrap<Bookmark[]>(response);
 }
 
 /** Creates a new bookmark. */
@@ -42,4 +44,8 @@ export async function deleteRecord(id) {
 export async function loadStats() {
   const response = await api.get("/bookmarks/stats");
   return unwrap(response);
+}
+
+export async function previewMetadata(url: string): Promise<{ url: string; title: string }> {
+  return unwrap(await api.post("/bookmarks/metadata", { url }));
 }

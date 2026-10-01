@@ -30,3 +30,7 @@ The backend uses development headers instead of full authentication so the proje
 ## Tradeoffs
 
 Email notifications are represented as database rows in `notifications` rather than real email delivery. Timezone conversion uses `date-fns-tz` at the slot boundary and stores appointment timestamps as UTC `timestamp with time zone`.
+
+## Junior SWE learning course
+
+[Start the detailed Astra upskilling course](astraupskill/README.md): half-open time intervals and a shared write lock, with a codebase map, worked implementation, executable examples, debugging labs, exercises and solution discussions.

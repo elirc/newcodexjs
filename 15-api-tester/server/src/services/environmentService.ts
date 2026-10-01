@@ -1,5 +1,5 @@
-import * as environmentModel from "../models/environmentModel";
-import { NotFoundError } from "../utils/errors";
+import * as environmentModel from "../models/environmentModel.js";
+import { NotFoundError } from "../utils/errors.js";
 
 /** Lists environments with variables. */
 export async function listEnvironments(userId: number) {
@@ -7,13 +7,24 @@ export async function listEnvironments(userId: number) {
 }
 
 /** Creates an environment. */
-export async function createEnvironment(userId: number, values: Record<string, unknown>) {
+export async function createEnvironment(
+  userId: number,
+  values: Record<string, unknown>,
+) {
   return environmentModel.createEnvironment(userId, values);
 }
 
 /** Updates an environment. */
-export async function updateEnvironment(userId: number, id: number, values: Record<string, unknown>) {
-  const environment = await environmentModel.updateEnvironment(id, userId, values);
+export async function updateEnvironment(
+  userId: number,
+  id: number,
+  values: Record<string, unknown>,
+) {
+  const environment = await environmentModel.updateEnvironment(
+    id,
+    userId,
+    values,
+  );
   if (!environment) throw new NotFoundError("Environment not found");
   return environment;
 }
@@ -38,7 +49,11 @@ export async function getVariables(userId: number, id: number) {
 }
 
 /** Bulk replaces variables for one environment. */
-export async function replaceVariables(userId: number, id: number, variables: Array<Record<string, unknown>>) {
+export async function replaceVariables(
+  userId: number,
+  id: number,
+  variables: Array<Record<string, unknown>>,
+) {
   const saved = await environmentModel.replaceVariables(id, userId, variables);
   if (!saved) throw new NotFoundError("Environment not found");
   return saved;

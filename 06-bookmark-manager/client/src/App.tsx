@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import "./index.css";
 import styles from "./App.module.css";
-import { createRecord, deleteRecord, listRecords, loadStats, updateRecord } from "./services/api";
+import { createRecord, previewMetadata, deleteRecord, listRecords, loadStats, updateRecord } from "./services/api";
 
 const emptyForm = {
   "title": "Readable title",
@@ -21,6 +21,7 @@ export default function App() {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [search, setSearch] = useState("");
   const [error, setError] = useState("");
+  const [metadataBusy, setMetadataBusy] = useState(false);
 
   const filteredRecords = useMemo(() => {
     return records.filter((record) => JSON.stringify(record).toLowerCase().includes(search.toLowerCase()));
@@ -64,6 +65,17 @@ export default function App() {
     }
   }
 
+  async function usePageTitle() {
+    const url = form.url;
+    setMetadataBusy(true); setError("");
+    try {
+      const metadata = await previewMetadata(url);
+      setForm((current) => current.url === url ? { ...current, title: metadata.title, url: metadata.url } : current);
+    } catch (error) {
+      setError(error instanceof Error ? error.message : "Could not load page title");
+    } finally { setMetadataBusy(false); }
+  }
+
   /** Loads a record into the form for editing. */
   function editRecord(record) {
     setEditingId(record.id);
@@ -73,8 +85,8 @@ export default function App() {
   /** Deletes a record after a browser confirmation. */
   async function removeRecord(id) {
     if (!window.confirm("Delete this record?")) return;
-    await deleteRecord(id);
-    await refresh();
+    try { await deleteRecord(id); await refresh(); }
+    catch (error) { setError(error instanceof Error ? error.message : "Could not delete bookmark"); }
   }
 
   return (
@@ -112,6 +124,7 @@ export default function App() {
             tags
             <input value={Array.isArray(form.tags) ? form.tags.join(", ") : form.tags ?? ""} onChange={(event) => updateField("tags", event.target.value)} />
           </label>
+          <button type="button" disabled={metadataBusy} onClick={usePageTitle}>{metadataBusy ? "Loading title…" : "Use page title"}</button>
           <button>{editingId ? "Update" : "Create"}</button>
         </form>
 

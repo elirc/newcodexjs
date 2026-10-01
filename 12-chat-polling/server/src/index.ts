@@ -5,4 +5,3 @@ import { env } from "./config/env.js";
 createApp().listen(env.PORT, () => {
   console.log(`Chat Polling API listening on ${env.PORT}`);
 });
-

@@ -10,7 +10,12 @@ export async function up(knex: Knex): Promise<void> {
   });
   await knex.schema.createTable("surveys", (table) => {
     table.increments("id").primary();
-    table.integer("user_id").notNullable().references("id").inTable("users").onDelete("CASCADE");
+    table
+      .integer("user_id")
+      .notNullable()
+      .references("id")
+      .inTable("users")
+      .onDelete("CASCADE");
     table.string("title", 255).notNullable();
     table.text("description");
     table.string("status", 20).notNullable().defaultTo("draft");
@@ -26,7 +31,12 @@ export async function up(knex: Knex): Promise<void> {
   });
   await knex.schema.createTable("questions", (table) => {
     table.increments("id").primary();
-    table.integer("survey_id").notNullable().references("id").inTable("surveys").onDelete("CASCADE");
+    table
+      .integer("survey_id")
+      .notNullable()
+      .references("id")
+      .inTable("surveys")
+      .onDelete("CASCADE");
     table.string("question_type", 20).notNullable();
     table.string("title", 500).notNullable();
     table.text("description");
@@ -34,27 +44,52 @@ export async function up(knex: Knex): Promise<void> {
     table.integer("sort_order").notNullable();
     table.jsonb("config");
     table.timestamp("created_at").notNullable().defaultTo(knex.fn.now());
-    table.check("question_type in ('short_text', 'long_text', 'single_choice', 'multi_choice', 'rating', 'yes_no', 'number', 'date', 'matrix')");
+    table.check(
+      "question_type in ('short_text', 'long_text', 'single_choice', 'multi_choice', 'rating', 'yes_no', 'number', 'date', 'matrix')",
+    );
   });
   await knex.schema.createTable("question_options", (table) => {
     table.increments("id").primary();
-    table.integer("question_id").notNullable().references("id").inTable("questions").onDelete("CASCADE");
+    table
+      .integer("question_id")
+      .notNullable()
+      .references("id")
+      .inTable("questions")
+      .onDelete("CASCADE");
     table.string("label", 255).notNullable();
     table.integer("sort_order").notNullable();
   });
   await knex.schema.createTable("responses", (table) => {
     table.increments("id").primary();
-    table.integer("survey_id").notNullable().references("id").inTable("surveys").onDelete("CASCADE");
+    table
+      .integer("survey_id")
+      .notNullable()
+      .references("id")
+      .inTable("surveys")
+      .onDelete("CASCADE");
     table.string("respondent_ip", 45);
     table.timestamp("started_at").notNullable().defaultTo(knex.fn.now());
     table.timestamp("completed_at");
   });
   await knex.schema.createTable("response_answers", (table) => {
     table.increments("id").primary();
-    table.integer("response_id").notNullable().references("id").inTable("responses").onDelete("CASCADE");
-    table.integer("question_id").notNullable().references("id").inTable("questions").onDelete("CASCADE");
+    table
+      .integer("response_id")
+      .notNullable()
+      .references("id")
+      .inTable("responses")
+      .onDelete("CASCADE");
+    table
+      .integer("question_id")
+      .notNullable()
+      .references("id")
+      .inTable("questions")
+      .onDelete("CASCADE");
     table.text("answer_text");
-    table.integer("selected_option_id").references("id").inTable("question_options");
+    table
+      .integer("selected_option_id")
+      .references("id")
+      .inTable("question_options");
     table.specificType("selected_option_ids", "integer[]");
     table.integer("rating_value");
     table.jsonb("matrix_answers");
@@ -70,4 +105,3 @@ export async function down(knex: Knex): Promise<void> {
   await knex.schema.dropTableIfExists("surveys");
   await knex.schema.dropTableIfExists("users");
 }
-

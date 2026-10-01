@@ -6,7 +6,8 @@
     "dev": "node --watch src/server.js",
     "start": "node src/server.js",
     "migrate": "knex migrate:latest",
-    "seed": "knex seed:run"
+    "seed": "knex seed:run",
+    "test": "node --test test/*.test.cjs"
   },
   "dependencies": {
     "express": "^4.21.2",

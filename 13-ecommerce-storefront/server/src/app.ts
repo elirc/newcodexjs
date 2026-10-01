@@ -12,10 +12,21 @@ export function createApp() {
   app.use(helmet());
   app.use(cors({ origin: env.CLIENT_ORIGIN }));
   app.use(express.json());
+  app.use((req, res, next) => {
+    if (
+      ["POST", "PUT", "PATCH"].includes(req.method) &&
+      (!req.body || typeof req.body !== "object" || Array.isArray(req.body))
+    )
+      return res
+        .status(400)
+        .json({ success: false, error: "Send a JSON object." });
+    next();
+  });
   app.use(morgan("dev"));
-  app.get("/health", (_req, res) => res.json({ success: true, data: { status: "ok" } }));
+  app.get("/health", (_req, res) =>
+    res.json({ success: true, data: { status: "ok" } }),
+  );
   app.use("/api", storeRouter);
   app.use(errorMiddleware);
   return app;
 }
-

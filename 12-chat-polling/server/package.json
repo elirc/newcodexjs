@@ -6,10 +6,11 @@
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
-    "start": "node dist/index.js",
-    "migrate": "knex --knexfile knexfile.ts migrate:latest",
+    "start": "node dist/src/index.js",
+    "migrate": "tsx scripts/database.ts migrate",
     "rollback": "knex --knexfile knexfile.ts migrate:rollback",
-    "seed": "knex --knexfile knexfile.ts seed:run"
+    "seed": "tsx scripts/database.ts seed",
+    "test": "tsx --test ../test/*.test.ts"
   },
   "dependencies": {
     "cors": "^2.8.5",
@@ -27,7 +28,7 @@
     "@types/morgan": "^1.9.9",
     "@types/node": "^20.14.10",
     "tsx": "^4.16.2",
-    "typescript": "^5.5.3"
+    "typescript": "^5.5.3",
+    "@types/pg": "^8.11.10"
   }
 }
-

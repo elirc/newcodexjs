@@ -22,12 +22,17 @@ export async function listProducts(req: Request, res: Response) {
 
 /** Gets product detail. */
 export async function getProduct(req: Request, res: Response) {
-  sendSuccess(res, await model.getProductBySlug(req.params.slug));
+  sendSuccess(res, await model.getProductBySlug(String(req.params.slug)));
 }
 
 /** Lists product reviews. */
 export async function reviews(req: Request, res: Response) {
-  sendSuccess(res, await db("reviews").where({ product_id: Number(req.params.id) }).orderBy("created_at", "desc"));
+  sendSuccess(
+    res,
+    await db("reviews")
+      .where({ product_id: Number(String(req.params.id)) })
+      .orderBy("created_at", "desc"),
+  );
 }
 
 /** Lists categories. */
@@ -37,8 +42,13 @@ export async function categories(_req: Request, res: Response) {
 
 /** Lists products by category slug. */
 export async function categoryProducts(req: Request, res: Response) {
-  const category = await db("categories").where({ slug: req.params.slug }).first();
-  sendSuccess(res, await model.listProducts({ ...req.query, category_id: category?.id }));
+  const category = await db("categories")
+    .where({ slug: String(req.params.slug) })
+    .first();
+  sendSuccess(
+    res,
+    await model.listProducts({ ...req.query, category_id: category?.id }),
+  );
 }
 
 /** Gets the current cart. */
@@ -48,17 +58,41 @@ export async function cart(req: Request, res: Response) {
 
 /** Adds an item to cart. */
 export async function addItem(req: Request, res: Response) {
-  sendSuccess(res, await service.addToCart(userId(req), sessionId(req), req.body.productId, req.body.quantity), 201);
+  sendSuccess(
+    res,
+    await service.addToCart(
+      userId(req),
+      sessionId(req),
+      req.body.productId,
+      req.body.quantity,
+    ),
+    201,
+  );
 }
 
 /** Updates cart quantity. */
 export async function updateItem(req: Request, res: Response) {
-  sendSuccess(res, await service.updateCartItem(userId(req), sessionId(req), Number(req.params.productId), req.body.quantity));
+  sendSuccess(
+    res,
+    await service.updateCartItem(
+      userId(req),
+      sessionId(req),
+      Number(req.params.productId),
+      req.body.quantity,
+    ),
+  );
 }
 
 /** Removes a cart item. */
 export async function removeItem(req: Request, res: Response) {
-  sendSuccess(res, await service.removeCartItem(userId(req), sessionId(req), Number(req.params.productId)));
+  sendSuccess(
+    res,
+    await service.removeCartItem(
+      userId(req),
+      sessionId(req),
+      Number(req.params.productId),
+    ),
+  );
 }
 
 /** Merges guest cart into user cart. */
@@ -78,12 +112,21 @@ export async function createAddress(req: Request, res: Response) {
 
 /** Updates an address. */
 export async function updateAddress(req: Request, res: Response) {
-  sendSuccess(res, await db("addresses").where({ id: Number(req.params.id), user_id: userId(req) }).update(req.body).returning("*").then((rows) => rows[0]));
+  sendSuccess(
+    res,
+    await db("addresses")
+      .where({ id: Number(String(req.params.id)), user_id: userId(req) })
+      .update(req.body)
+      .returning("*")
+      .then((rows) => rows[0]),
+  );
 }
 
 /** Deletes an address. */
 export async function deleteAddress(req: Request, res: Response) {
-  await db("addresses").where({ id: Number(req.params.id), user_id: userId(req) }).delete();
+  await db("addresses")
+    .where({ id: Number(String(req.params.id)), user_id: userId(req) })
+    .delete();
   sendSuccess(res, { deleted: true });
 }
 
@@ -99,12 +142,23 @@ export async function orders(req: Request, res: Response) {
 
 /** Gets one order. */
 export async function order(req: Request, res: Response) {
-  sendSuccess(res, await model.getOrder(Number(req.params.id), userId(req)));
+  sendSuccess(
+    res,
+    await model.getOrder(Number(String(req.params.id)), userId(req)),
+  );
 }
 
 /** Creates a product review. */
 export async function createReview(req: Request, res: Response) {
-  sendSuccess(res, await service.createReview(userId(req), Number(req.params.id), req.body), 201);
+  sendSuccess(
+    res,
+    await service.createReview(
+      userId(req),
+      Number(String(req.params.id)),
+      req.body,
+    ),
+    201,
+  );
 }
 
 /** Lists wishlist products. */
@@ -136,12 +190,20 @@ export async function adminCreateProduct(req: Request, res: Response) {
 
 /** Updates an admin product. */
 export async function adminUpdateProduct(req: Request, res: Response) {
-  sendSuccess(res, await model.updateProduct(Number(req.params.id), req.body));
+  sendSuccess(
+    res,
+    await model.updateProduct(Number(String(req.params.id)), req.body),
+  );
 }
 
 /** Deactivates an admin product. */
 export async function adminDeleteProduct(req: Request, res: Response) {
-  sendSuccess(res, await model.updateProduct(Number(req.params.id), { is_active: false }));
+  sendSuccess(
+    res,
+    await model.updateProduct(Number(String(req.params.id)), {
+      is_active: false,
+    }),
+  );
 }
 
 /** Lists admin orders. */
@@ -151,11 +213,17 @@ export async function adminOrders(_req: Request, res: Response) {
 
 /** Updates order status. */
 export async function adminOrderStatus(req: Request, res: Response) {
-  sendSuccess(res, await db("orders").where({ id: Number(req.params.id) }).update({ status: req.body.status, updated_at: db.fn.now() }).returning("*").then((rows) => rows[0]));
+  sendSuccess(
+    res,
+    await db("orders")
+      .where({ id: Number(String(req.params.id)) })
+      .update({ status: req.body.status, updated_at: db.fn.now() })
+      .returning("*")
+      .then((rows) => rows[0]),
+  );
 }
 
 /** Gets admin dashboard stats. */
 export async function adminDashboard(_req: Request, res: Response) {
   sendSuccess(res, await service.adminDashboard());
 }
-

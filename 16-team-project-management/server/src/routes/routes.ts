@@ -1,8 +1,9 @@
 import { Router } from "express";
-import * as controller from "../controllers/controller";
+import * as controller from "../controllers/controller.js";
 
 const router = Router();
-const wrap = (handler: any) => (req: any, res: any, next: any) => Promise.resolve(handler(req, res, next)).catch(next);
+const wrap = (handler: any) => (req: any, res: any, next: any) =>
+  Promise.resolve(handler(req, res, next)).catch(next);
 
 router.get("/", wrap(controller.list));
 router.get("/dashboard", wrap(controller.dashboard));

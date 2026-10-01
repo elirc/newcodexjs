@@ -1,8 +1,14 @@
-import { db } from "../config/db";
+import { db } from "../config/db.js";
 
 /** Lists active services for a provider in display order. */
-export async function listServices(providerId: number, includeInactive = false) {
-  const query = db("services").where({ provider_id: providerId }).orderBy("sort_order", "asc").orderBy("name", "asc");
+export async function listServices(
+  providerId: number,
+  includeInactive = false,
+) {
+  const query = db("services")
+    .where({ provider_id: providerId })
+    .orderBy("sort_order", "asc")
+    .orderBy("name", "asc");
   if (!includeInactive) query.andWhere({ is_active: true });
   return query;
 }
@@ -19,13 +25,23 @@ export async function createService(values: Record<string, unknown>) {
 }
 
 /** Updates editable service fields for a provider. */
-export async function updateService(id: number, providerId: number, values: Record<string, unknown>) {
-  const [service] = await db("services").where({ id, provider_id: providerId }).update(values).returning("*");
+export async function updateService(
+  id: number,
+  providerId: number,
+  values: Record<string, unknown>,
+) {
+  const [service] = await db("services")
+    .where({ id, provider_id: providerId })
+    .update(values)
+    .returning("*");
   return service;
 }
 
 /** Deactivates a service while preserving existing appointment history. */
 export async function deactivateService(id: number, providerId: number) {
-  const [service] = await db("services").where({ id, provider_id: providerId }).update({ is_active: false }).returning("*");
+  const [service] = await db("services")
+    .where({ id, provider_id: providerId })
+    .update({ is_active: false })
+    .returning("*");
   return service;
 }

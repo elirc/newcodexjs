@@ -85,7 +85,7 @@ export async function saveRecipeGraph(
     updated_at: trx.fn.now()
   };
   const id = recipeId
-    ? Number((await trx('recipes').where({ id: recipeId }).update(row).returning('id'))[0].id)
+    ? Number((await trx('recipes').where({ id: recipeId, user_id: userId }).update(row).returning('id'))[0].id)
     : Number((await trx('recipes').insert(row).returning('id'))[0].id);
 
   await trx('ingredients').where({ recipe_id: id }).delete();

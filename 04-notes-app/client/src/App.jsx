@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import "./index.css";
 import styles from "./App.module.css";
 import { createRecord, deleteRecord, listRecords, loadStats, updateRecord } from "./services/api";
@@ -23,25 +23,26 @@ export default function App() {
   const [search, setSearch] = useState("");
   const [error, setError] = useState("");
 
-  const filteredRecords = useMemo(() => {
-    return records.filter((record) => JSON.stringify(record).toLowerCase().includes(search.toLowerCase()));
-  }, [records, search]);
-
-  /** Refreshes list and stats from the API. */
+  const [searching, setSearching] = useState(false);
+  const requestVersion = useRef(0);
   async function refresh() {
+    const version = ++requestVersion.current;
+    setSearching(true);
     try {
-      const [nextRecords, nextStats] = await Promise.all([listRecords(), loadStats()]);
-      setRecords(nextRecords);
-      setStats(nextStats);
-      setError("");
+      const [nextRecords, nextStats] = await Promise.all([listRecords({ search }), loadStats()]);
+      if (version !== requestVersion.current) return;
+      setRecords(nextRecords); setStats(nextStats); setError("");
     } catch (requestError) {
-      setError(requestError instanceof Error ? requestError.message : "Could not load records");
+      if (version === requestVersion.current) setError(requestError instanceof Error ? requestError.message : "Could not load notes");
+    } finally {
+      if (version === requestVersion.current) setSearching(false);
     }
   }
-
   useEffect(() => {
-    refresh();
-  }, []);
+    setSearching(true);
+    const timer = setTimeout(refresh, 250);
+    return () => { clearTimeout(timer); requestVersion.current += 1; };
+  }, [search]);
 
   /** Updates form state for text inputs. */
   function updateField(field, value) {
@@ -74,8 +75,8 @@ export default function App() {
   /** Deletes a record after a browser confirmation. */
   async function removeRecord(id) {
     if (!window.confirm("Delete this record?")) return;
-    await deleteRecord(id);
-    await refresh();
+    try { await deleteRecord(id); await refresh(); }
+    catch (requestError) { setError(requestError instanceof Error ? requestError.message : "Could not delete note"); }
   }
 
   return (
@@ -85,9 +86,10 @@ export default function App() {
           <p>{stats?.total ?? records.length} records</p>
           <h1>Notes App</h1>
         </div>
-        <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search" />
+        <input value={search} onChange={(event) => setSearch(event.target.value)} aria-label="Search note content" placeholder="Search words in title or body" />
       </section>
 
+      <p role="status">{searching ? "Searching…" : `${records.length} matching notes`}</p>
       {error && <div className={styles.error}>{error}</div>}
 
       <section className={styles.grid}>
@@ -117,7 +119,7 @@ export default function App() {
         </form>
 
         <section className={styles.list}>
-          {filteredRecords.map((record) => (
+          {records.map((record) => (
             <article className={styles.card} key={record.id}>
               <div>
                 <h3>{record.title}</h3>

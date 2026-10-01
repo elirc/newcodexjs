@@ -12,7 +12,8 @@
     "dev": "node --watch src/server.js",
     "migrate": "knex migrate:latest",
     "rollback": "knex migrate:rollback",
-    "seed": "knex seed:run"
+    "seed": "knex seed:run",
+    "test": "node --test test/*.test.cjs"
   },
   "dependencies": {
     "cors": "^2.8.5",

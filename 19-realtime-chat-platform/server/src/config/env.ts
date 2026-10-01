@@ -11,6 +11,6 @@ export const env = {
     database: process.env.DB_NAME || "realtime_chat_platform_dev",
     user: process.env.DB_USER || "postgres",
     password: process.env.DB_PASSWORD || "postgres",
-    ssl: process.env.DB_SSL === "true" ? { rejectUnauthorized: false } : false
-  }
+    ssl: process.env.DB_SSL === "true" ? { rejectUnauthorized: false } : false,
+  },
 };

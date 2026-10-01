@@ -11,6 +11,6 @@ export const env = {
     database: process.env.DB_NAME || "support_ticket_system_dev",
     user: process.env.DB_USER || "postgres",
     password: process.env.DB_PASSWORD || "postgres",
-    ssl: process.env.DB_SSL === "true" ? { rejectUnauthorized: false } : false
-  }
+    ssl: process.env.DB_SSL === "true" ? { rejectUnauthorized: false } : false,
+  },
 };

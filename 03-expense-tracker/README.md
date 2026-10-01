@@ -16,3 +16,7 @@ Full-stack JavaScript expense tracker with category budgets, recurring expense f
 - Monthly budgets per category with warning/exceeded status.
 - Monthly, weekly, daily trend, and category aggregation endpoints.
 - CSV export for filtered expenses.
+
+## Junior SWE learning course
+
+[Start the detailed Astra upskilling course](astraupskill/README.md): aggregation, calendar boundaries and deterministic fixtures, with a codebase map, worked implementation, executable examples, debugging labs, exercises and solution discussions.

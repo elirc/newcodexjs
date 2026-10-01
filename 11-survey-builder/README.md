@@ -37,3 +37,6 @@ Authenticated routes read `x-demo-user-id` and fall back to `DEMO_USER_ID`. This
 
 See [docs/architecture.md](docs/architecture.md) for the layer-by-layer design.
 
+## Junior SWE learning course
+
+[Start the detailed Astra upskilling course](astraupskill/README.md): nested validation and atomic response submission, with a codebase map, worked implementation, executable examples, debugging labs, exercises and solution discussions.

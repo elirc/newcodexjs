@@ -31,5 +31,5 @@ export async function seed(knex: Knex): Promise<void> {
       "archive"
     ]
   }
-]);
+].map((bookmark) => ({ ...bookmark, tags: JSON.stringify(bookmark.tags) })));
 }

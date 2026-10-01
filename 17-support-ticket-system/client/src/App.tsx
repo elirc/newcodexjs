@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import styles from "./App.module.css";
 import "./index.css";
 import {
@@ -51,7 +51,11 @@ export default function App() {
 
   const selectedSet = useMemo(() => new Set(selectedIds), [selectedIds]);
 
-  async function refresh(nextFilters = filters) {
+  const filtersRef = useRef(filters);
+  const refreshSequence = useRef(0);
+
+  async function refresh(nextFilters = filtersRef.current) {
+    const sequence = ++refreshSequence.current;
     try {
       const [list, nextDashboard, nextActivity, nextAudit, nextViews] = await Promise.all([
         listRecords(nextFilters),
@@ -60,6 +64,7 @@ export default function App() {
         loadAudit(),
         loadViews()
       ]);
+      if (sequence !== refreshSequence.current) return;
       setRecords(list.rows);
       setPagination(list.pagination);
       setDashboard(nextDashboard);
@@ -68,6 +73,7 @@ export default function App() {
       setViews(nextViews);
       setError("");
     } catch (requestError) {
+      if (sequence !== refreshSequence.current) return;
       setError(requestError instanceof Error ? requestError.message : "Unable to load enterprise workspace");
     }
   }
@@ -78,6 +84,7 @@ export default function App() {
 
   function updateFilter(field: string, value: string) {
     const nextFilters = { ...filters, [field]: value, page: field === "page" ? value : "1" };
+    filtersRef.current = nextFilters;
     setFilters(nextFilters);
     refresh(nextFilters);
   }
@@ -92,11 +99,13 @@ export default function App() {
 
   async function saveRecord(event: React.FormEvent) {
     event.preventDefault();
+    try {
     if (editingId) await updateRecord(editingId, form);
     else await createRecord(form);
     setEditingId(null);
     setForm(emptyForm);
     await refresh();
+    } catch (requestError) { setError(requestError instanceof Error ? requestError.message : "Unable to save record"); }
   }
 
   async function inspectRecord(record: RecordItem) {

@@ -39,7 +39,12 @@ export async function up(knex: Knex): Promise<void> {
   });
   await knex.schema.createTable("product_images", (table) => {
     table.increments("id").primary();
-    table.integer("product_id").notNullable().references("id").inTable("products").onDelete("CASCADE");
+    table
+      .integer("product_id")
+      .notNullable()
+      .references("id")
+      .inTable("products")
+      .onDelete("CASCADE");
     table.string("url", 500).notNullable();
     table.string("alt_text", 200);
     table.integer("sort_order").notNullable().defaultTo(0);
@@ -47,14 +52,28 @@ export async function up(knex: Knex): Promise<void> {
   });
   await knex.schema.createTable("carts", (table) => {
     table.increments("id").primary();
-    table.integer("user_id").references("id").inTable("users").onDelete("CASCADE").unique();
+    table
+      .integer("user_id")
+      .references("id")
+      .inTable("users")
+      .onDelete("CASCADE")
+      .unique();
     table.string("session_id", 100).unique();
     table.timestamps(true, true);
   });
   await knex.schema.createTable("cart_items", (table) => {
     table.increments("id").primary();
-    table.integer("cart_id").notNullable().references("id").inTable("carts").onDelete("CASCADE");
-    table.integer("product_id").notNullable().references("id").inTable("products");
+    table
+      .integer("cart_id")
+      .notNullable()
+      .references("id")
+      .inTable("carts")
+      .onDelete("CASCADE");
+    table
+      .integer("product_id")
+      .notNullable()
+      .references("id")
+      .inTable("products");
     table.integer("quantity").notNullable();
     table.decimal("unit_price", 10, 2).notNullable();
     table.unique(["cart_id", "product_id"]);
@@ -62,7 +81,12 @@ export async function up(knex: Knex): Promise<void> {
   });
   await knex.schema.createTable("addresses", (table) => {
     table.increments("id").primary();
-    table.integer("user_id").notNullable().references("id").inTable("users").onDelete("CASCADE");
+    table
+      .integer("user_id")
+      .notNullable()
+      .references("id")
+      .inTable("users")
+      .onDelete("CASCADE");
     table.string("label", 50);
     table.string("full_name", 200).notNullable();
     table.string("street_line_1", 255).notNullable();
@@ -90,12 +114,23 @@ export async function up(knex: Knex): Promise<void> {
     table.string("payment_status", 20).notNullable().defaultTo("paid");
     table.text("notes");
     table.timestamps(true, true);
-    table.check("status in ('pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled')");
+    table.check(
+      "status in ('pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled')",
+    );
   });
   await knex.schema.createTable("order_items", (table) => {
     table.increments("id").primary();
-    table.integer("order_id").notNullable().references("id").inTable("orders").onDelete("CASCADE");
-    table.integer("product_id").notNullable().references("id").inTable("products");
+    table
+      .integer("order_id")
+      .notNullable()
+      .references("id")
+      .inTable("orders")
+      .onDelete("CASCADE");
+    table
+      .integer("product_id")
+      .notNullable()
+      .references("id")
+      .inTable("products");
     table.string("product_name", 255).notNullable();
     table.integer("quantity").notNullable();
     table.decimal("unit_price", 10, 2).notNullable();
@@ -103,8 +138,18 @@ export async function up(knex: Knex): Promise<void> {
   });
   await knex.schema.createTable("reviews", (table) => {
     table.increments("id").primary();
-    table.integer("product_id").notNullable().references("id").inTable("products").onDelete("CASCADE");
-    table.integer("user_id").notNullable().references("id").inTable("users").onDelete("CASCADE");
+    table
+      .integer("product_id")
+      .notNullable()
+      .references("id")
+      .inTable("products")
+      .onDelete("CASCADE");
+    table
+      .integer("user_id")
+      .notNullable()
+      .references("id")
+      .inTable("users")
+      .onDelete("CASCADE");
     table.integer("rating").notNullable();
     table.string("title", 200);
     table.text("content");
@@ -114,8 +159,18 @@ export async function up(knex: Knex): Promise<void> {
     table.check("rating between 1 and 5");
   });
   await knex.schema.createTable("wishlists", (table) => {
-    table.integer("user_id").notNullable().references("id").inTable("users").onDelete("CASCADE");
-    table.integer("product_id").notNullable().references("id").inTable("products").onDelete("CASCADE");
+    table
+      .integer("user_id")
+      .notNullable()
+      .references("id")
+      .inTable("users")
+      .onDelete("CASCADE");
+    table
+      .integer("product_id")
+      .notNullable()
+      .references("id")
+      .inTable("products")
+      .onDelete("CASCADE");
     table.timestamp("created_at").notNullable().defaultTo(knex.fn.now());
     table.primary(["user_id", "product_id"]);
   });
@@ -135,4 +190,3 @@ export async function down(knex: Knex): Promise<void> {
   await knex.schema.dropTableIfExists("categories");
   await knex.schema.dropTableIfExists("users");
 }
-

@@ -1,13 +1,24 @@
-import { db } from "../config/db";
+import { db } from "../config/db.js";
 
 /** Lists records with basic search filters. */
-export function listRecords(query: { search?: string; status?: string }) { const builder = db("bookmarks").select("*").orderBy("created_at", "desc"); if (query.status) builder.where("status", query.status); if (query.search) builder.whereRaw("CAST(bookmarks AS TEXT) ILIKE ?", [`%${query.search}%`]); return builder; }
+export function listRecords(query: { search?: string; status?: string }) { const builder = db("bookmarks").select("*").orderBy("created_at", "desc"); if (query.status) builder.where("status", query.status); if (query.search) {
+    // Search the fields a person typed, not ids, timestamps or serialized row metadata,
+    // and escape LIKE metacharacters so "%" is a character, not a wildcard.
+    const needle = "%" + query.search.replace(/[\\%_]/g, (c) => "\\" + c) + "%";
+    builder.where(function () {
+      for (const field of ["title", "url", "collection"]) this.orWhereRaw(`${field} ILIKE ? ESCAPE '\\'`, [needle]);
+    });
+  }
+  return builder;
+}
+function databasePayload(payload: Record<string, unknown>) { return payload.tags === undefined ? payload : { ...payload, tags: JSON.stringify(payload.tags) }; }
+
 /** Finds one record by id. */
 export function findRecord(id: number) { return db("bookmarks").where({ id }).first(); }
 /** Creates one record. */
-export async function createRecord(payload: Record<string, unknown>) { const [row] = await db("bookmarks").insert(payload).returning("*"); return row; }
+export async function createRecord(payload: Record<string, unknown>) { const [row] = await db("bookmarks").insert(databasePayload(payload)).returning("*"); return row; }
 /** Updates one record. */
-export async function updateRecord(id: number, payload: Record<string, unknown>) { const [row] = await db("bookmarks").where({ id }).update({ ...payload, updated_at: db.fn.now() }).returning("*"); return row; }
+export async function updateRecord(id: number, payload: Record<string, unknown>) { const [row] = await db("bookmarks").where({ id }).update({ ...databasePayload(payload), updated_at: db.fn.now() }).returning("*"); return row; }
 /** Deletes one record. */
 export async function deleteRecord(id: number) { const [row] = await db("bookmarks").where({ id }).del().returning("*"); return row; }
 /** Counts records for dashboard stats. */

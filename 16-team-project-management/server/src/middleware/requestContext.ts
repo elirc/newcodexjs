@@ -13,7 +13,11 @@ declare global {
   }
 }
 
-export function requestContext(req: Request, res: Response, next: NextFunction) {
+export function requestContext(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
   const requestId = String(req.headers["x-request-id"] || crypto.randomUUID());
   const actor = String(req.headers["x-demo-user"] || "demo.user@example.com");
   const role = String(req.headers["x-demo-role"] || "operator");
