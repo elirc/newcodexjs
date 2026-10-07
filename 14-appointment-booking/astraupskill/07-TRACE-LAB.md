@@ -127,7 +127,7 @@ For example, an edit can change a title while preserving an ID. A status command
 
 ### Boundary 4 — the service resolves the entities and computes the interval
 
-`createAppointment` in `services/appointmentService.ts` (line 40 onwards): load the provider (404 if not accepting), load the service and check `service.provider_id === input.providerId` and `is_active`, compute `endTime = start + duration_minutes`, run a first `findConflictingAppointments` for an early 409, then call the model with `status: "confirmed"` (line 125). The early check is advisory: the decisive one happens under the lock in the model.
+`bookAppointment` in `services/appointmentService.ts` (line 29 onwards): load the provider (404 if not accepting), load the service and check `service.provider_id === input.providerId` and `is_active`, compute `endTime = start + duration_minutes`, run a first `findConflictingAppointments` for an early 409, then call `appointmentModel.createAppointment` (line 59) without a `status` field, so the row gets `confirmed` from the column default in the migration (`table.string("status", 30).notNullable().defaultTo("confirmed")`). The explicit `status: "confirmed"` at line 125 belongs to `rescheduleAppointment`, not to booking. The early check is advisory: the decisive one happens under the lock in the model.
 
 ### Boundary 5 — the model locks the provider and decides under the lock
 

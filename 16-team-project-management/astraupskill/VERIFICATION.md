@@ -66,3 +66,7 @@ The server validates partial fields before writing and keeps IDs stable. The ver
 These are focused learning improvements, not a production-readiness certification. Existing integrations and all optional exercises are outside the checked boundary unless named above.
 
 Delivery hashes and local course links are checked after applying the files. Logs, screenshots, diffs and backups are in AstraOrganized2/astrafinalplan/implementation/batch04. The combined report is AstraOrganized2/astrdocs/ALL_75_PROJECTS_REPORT.md.
+
+## Documentation accuracy pass (2026-10-06)
+
+Re-checked every `path:line` citation, relative link and backticked repository path in README.md, docs/ and astraupskill/ against the source. Fixed 07-TRACE-LAB.md (`lifecycleUpdate` starts at model.ts line 170, not 173) and docs/FABLE.md (demo headers are `x-demo-user`/`x-demo-role`, `.env` lives at the project root, file line counts). Expanded docs/architecture.md as the full walkthrough of the shared 16-20 template. No code, tests or packages were run or changed in this pass.

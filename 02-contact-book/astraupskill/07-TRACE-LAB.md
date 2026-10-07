@@ -19,11 +19,11 @@ Trace the parser linked in chapter 3 character by character, then remove the clo
 
 ### Boundary 1 — the import screen decides what to send
 
-`client/src/features/contacts`: the import dialog reads the chosen file as text and posts `{ csv }` through `client/src/services`; the export button downloads the CSV built by `contactsToCsv`. The browser never parses the CSV: parsing is the server's job so the same rules apply to every client.
+`client/src/App.jsx` (`client/src/features/contacts` holds only `useDebounce.js`): there is no file dialog. The "Paste CSV text" input stores the text in state, and the "Import CSV" button posts `{ csv }` through `contactApi.importCsv` in `client/src/services/api.js`. The export button downloads the CSV that the server builds with `contactsToCsv` (`server/src/utils/csv.js`). The browser never parses the CSV: parsing is the server's job, so the same rules apply to every client.
 
 ### Boundary 2 — the request leaves the browser
 
-`POST /api/contacts/import` with a JSON body `{ csv: "..." }` (the controller also accepts a raw body). The client shows `error.message` from the envelope on failure, which is the CSV parser's message with the offending row.
+`POST /api/contacts/import` with a JSON body `{ csv: "..." }` (the controller also accepts a raw body). The client does **not** show the error today. `unwrap` in `client/src/services/api.js` only reads `response.data.data`, and the import button's `.then(...)` has no `catch`, so a 400 from the parser becomes an unhandled promise rejection. The parser's message with the offending row is visible only in the network tab's response body. Surfacing it is a worthwhile exercise.
 
 ### Boundary 3 — the route and controller hand the text to the service
 

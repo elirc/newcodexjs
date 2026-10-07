@@ -33,7 +33,7 @@ API on **:4107**, client on :5173.
 
 ```bash
 createdb blog_platform_dev
-cd 07-blog-platform/server && cp .env.example .env
+cd 07-blog-platform && cp .env.example .env && cd server   # server/src/config/env.ts loads ../.env
 npm install && npm run migrate && npm run seed && npm run dev
 # another terminal
 cd 07-blog-platform/client && npm install && npm run dev
@@ -45,8 +45,8 @@ curl "http://localhost:4107/api/posts/stats"
 ```
 
 Scaffold tour: 20 minutes, same reading order as Project 6 §3 — routes, `service.ts`
-(allow-listed fields, id parsing), `model.ts` (note the `CAST ... ILIKE` search
-shortcut again), the migration, then `client/src/App.tsx`.
+(allow-listed fields, id parsing), `model.ts` (note the `orWhereILike` search
+over four columns, unescaped), the migration, then `client/src/App.tsx`.
 
 ## 3. The labs
 

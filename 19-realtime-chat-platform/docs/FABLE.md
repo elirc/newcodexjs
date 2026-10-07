@@ -6,8 +6,10 @@ soft delete, audit, request context, saved views, bulk ops — **read 16's FABLE
 first**). From Project 12 you bring the chat mechanics (polling, cursors, presence —
 its FABLE guide is the other prerequisite). This project's scaffold models the
 **operational layer** — workspace-scoped `conversations` with statuses
-`active/muted/incident/archived`, moderation comments, bulk archive/mute, and audit
-for moderation events. The labs first make you the *platform operator*, then hand you
+`active/muted/incident/archived`, comments usable as moderation notes, bulk status
+changes (archive/mute), and audit for moderation events. Despite the name, there are
+no messages, members or sockets in this codebase yet, and `muted`/`incident` are
+labels with no effect. The labs first make you the *platform operator*, then hand you
 the upgrade Project 12 deliberately withheld: **WebSockets**.
 
 **Stack:** React 18 + Vite + TypeScript / Express + Knex + PostgreSQL. API on **:4119**.
@@ -15,9 +17,9 @@ the upgrade Project 12 deliberately withheld: **WebSockets**.
 ## 1. Run it (10 minutes)
 
 ```bash
-# create the DB named in server/.env.example, then:
-cd 19-realtime-chat-platform/server && cp .env.example .env
-npm install && npm run migrate && npm run seed && npm run dev
+# the server loads ../.env (relative to server/), i.e. a project-root .env:
+cd 19-realtime-chat-platform && cp .env.example .env   # create the DB_NAME it names
+cd server && npm install && npm run migrate && npm run seed && npm run dev
 # another terminal
 cd 19-realtime-chat-platform/client && npm install && npm run dev
 ```
@@ -27,7 +29,7 @@ curl "http://localhost:4119/api/conversations?status=active"
 curl "http://localhost:4119/api/conversations/dashboard"
 # moderation: mute a conversation, verify the audit trail names you
 curl -X POST http://localhost:4119/api/conversations/bulk/status -H "content-type: application/json" \
-  -H "x-role: operator" -d '{"ids":[1],"status":"muted"}'
+  -H "x-demo-user: you@example.com" -H "x-demo-role: operator" -d '{"ids":[1],"status":"muted"}'
 curl "http://localhost:4119/api/conversations/audit?limit=5"
 ```
 
@@ -74,8 +76,9 @@ Project 16's; note the domain deltas (status enum, moderation framing). Then
    - **Keep the HTTP POST as the write path** (socket = fan-out, HTTP = mutation) —
      argue this choice against socket-writes in a comment; it preserves validation,
      audit, and the P12 fallback.
-   - Client: replace the poll loop with a socket subscription *plus* cursor backfill
-     on connect/reconnect (`?after=` — Project 12's cursor pays off exactly here).
+   - Client: this app's client has no poll loop (it re-fetches after each action);
+     add a socket subscription *plus* cursor backfill on connect/reconnect
+     (`?after=` — Project 12's cursor pays off exactly here).
 5. **Presence, socket edition:** connection open = online, close = offline — but
    multiple tabs mean N connections per user, so presence is a *count*, and a dropped
    connection without close needs heartbeat/ping timeout anyway. Compare honestly

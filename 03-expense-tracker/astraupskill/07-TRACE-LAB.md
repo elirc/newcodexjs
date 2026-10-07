@@ -86,7 +86,7 @@ February has three expenses, Food 30.30, Travel 4.70 and total 35.00. The conspi
 
 ### Boundary 1 — the report screen asks for a window
 
-`client/src/features` reports pages call the API with `month=YYYY-MM` or `start_date`/`end_date`; the client never sums anything itself, it renders the server's totals.
+`client/src/App.jsx` (there is no `features` folder in this client) uses a hard-coded `month = "2026-07"` (line 7) and calls the API through `client/src/services/api.js` with `month=YYYY-MM` or `start_date`/`end_date` (lines 98-102 of `App.jsx`); the client never sums anything itself, it renders the server's totals.
 
 ### Boundary 2 — the request leaves the browser
 

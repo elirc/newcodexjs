@@ -23,9 +23,9 @@ Client: `http://localhost:5173`
 ## Learning Focus
 
 - Zod validation
-- API versioning
-- external URL metadata placeholder
-- bookmarklet-friendly API
+- API versioning (lab; routes are unversioned today)
+- external URL metadata preview (opt-in: only HTTPS hosts listed in `BOOKMARK_METADATA_HOSTS`)
+- bookmarklet-friendly API (lab; not implemented)
 
 ## API Overview
 
@@ -35,6 +35,7 @@ Client: `http://localhost:5173`
 - `POST /api/bookmarks` creates a record.
 - `PUT /api/bookmarks/:id` updates a record.
 - `DELETE /api/bookmarks/:id` deletes a record.
+- `POST /api/bookmarks/metadata` takes `{ url }` and returns `{ url, title }` from the page without saving anything.
 
 ## Notes
 

@@ -44,13 +44,13 @@ Inspect the diff as if you were a teammate encountering it for the first time. R
 
 ## Exercise 7 — ownership and authorization on the owner side
 
-Respondents are anonymous by design, but survey owners are not: every `/api/surveys/:id` route trusts the demo `x-user-id` header and `getSurvey(surveyId, userId)` is the only thing standing between two owners.
+Respondents are anonymous by design, but survey owners are not: every `/api/surveys/:id` route trusts the demo `x-demo-user-id` header (read in `surveyController.ts`; note that `test/responses.test.ts` sends `x-user-id`, which the server ignores) and `getSurvey(surveyId, userId)` is the only thing standing between two owners.
 
 1. Read `getSurvey` in `services/surveyService.ts` and write down which routes call it and which write routes reach `surveyModel` without it (questions, reorder, delete).
 2. Make every question route (`POST /surveys/:id/questions`, `PUT`/`DELETE /questions/:questionId`, `PUT /surveys/:id/questions/reorder`) verify that the survey belongs to `userId` before writing, using one helper `assertOwner(surveyId, userId)` that throws `NotFoundError` (deliberately not 403: an owner should not learn that another owner's survey id exists).
 3. Test: user 1 creates a survey with a question; user 2 attempts to update, reorder and delete that question and to add a new one; every call is 404 and the rows are unchanged; user 1's same calls succeed.
 
-Acceptance is the test in step 3 plus one sentence in `02-CONCEPTS.md` on why the public respondent path must never use `x-user-id`.
+Acceptance is the test in step 3 plus one sentence in `02-CONCEPTS.md` on why the public respondent path must never use `x-demo-user-id`.
 
 ## Completion rubric
 

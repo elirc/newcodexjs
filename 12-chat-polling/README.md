@@ -9,7 +9,7 @@ A self-contained TypeScript chat app that demonstrates real-time-like behavior w
    cd server && npm install
    cd ../client && npm install
    ```
-2. Copy `.env.example` into `server/.env` and create the database.
+2. Copy the project-root `.env.example` into `server/.env` and create the database. (The root `package.json` also offers `npm run db:migrate`, `npm run db:seed`, `npm run dev` and `npm test`; tests need `ASTRA_TEST_DATABASE_URL` pointing at an `astra_test_*` database.)
 3. Run:
    ```bash
    cd server
@@ -27,10 +27,10 @@ The API reads `x-demo-user-id` and defaults to user `1`. This keeps the project 
 ## Included scope
 
 - Direct and group conversations.
-- Message history with `before` cursor pagination.
+- Message history with `before` cursor pagination (server-side; the bundled client loads only the latest page).
 - Active polling with `after` cursor.
-- Presence heartbeat, stale typing cleanup, unread counts, read receipts.
-- Emoji reactions, edit/delete-own-message behavior, and search.
+- Presence heartbeat, stale typing indicators filtered out after 5 seconds, unread counts, read receipts.
+- Emoji reactions, edit/delete-own-message behavior (API only; the client has no edit/delete buttons), and search.
 
 See [docs/architecture.md](docs/architecture.md) for design notes.
 

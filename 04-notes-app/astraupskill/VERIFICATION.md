@@ -44,3 +44,7 @@ Tests reject differently named databases. The user must be allowed to create sch
 These checks cover the implemented improvements and described regression cases. They do not certify unrelated features or production readiness. Exercises in chapter 5 remain learner work. Source, test and setup limitations are explained in the concepts and trace lab.
 
 Machine-readable results and logs are retained in AstraOrganized2/astrafinalplan/implementation/batch02. The combined report is in AstraOrganized2/astrdocs/ALL_20_PROJECTS_REPORT.md.
+
+## Accuracy pass 2026-10-06
+
+Documentation accuracy pass (2026-10-06): every relative link and `path:line` citation in this course, README.md and docs/ was re-checked against the files on disk (all resolve and are in range), npm script names were matched against package.json, and the trace-lab client-side claims were re-read against the client source. No course corrections were needed.

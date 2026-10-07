@@ -9,6 +9,8 @@ Self-contained TypeScript Postman-lite app with a three-panel UI, collections/fo
 3. In `server/`, run `npm install`, `npm run migrate`, `npm run seed`, then `npm run dev`.
 4. In `client/`, run `npm install`, then `npm run dev`.
 
+The project root `package.json` also offers `npm run db:migrate`, `npm run db:seed`, `npm run dev` (both apps) and `npm test`; tests need `ASTRA_TEST_DATABASE_URL` pointing at an `astra_test_*` database.
+
 The frontend expects the API at `http://localhost:4215/api` and runs on `http://localhost:5175`.
 
 ## Implemented scope

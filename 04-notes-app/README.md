@@ -22,14 +22,14 @@ Client: `http://localhost:5173`
 
 ## Learning Focus
 
-- Markdown rendering
+- Markdown rendering (lab; `react-markdown` is listed in `package.json` but not yet imported anywhere)
 - folders and tags
-- debounced autosave shape
+- debounced autosave shape (lab; today only the search box is debounced)
 - PostgreSQL full-text search notes
 
 ## API Overview
 
-- `GET /api/notes` lists records with optional `search` and `status` filters.
+- `GET /api/notes` lists records with optional `search` (PostgreSQL full-text), `status` and `folder` filters.
 - `GET /api/notes/stats` returns dashboard counts.
 - `GET /api/notes/:id` returns one record.
 - `POST /api/notes` creates a record.

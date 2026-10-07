@@ -142,7 +142,7 @@ For example, an edit can change a title while preserving an ID. A status command
 
 ### Boundary 4 — the model locks and applies lifecycle rules
 
-`models/model.ts` `lifecycleUpdate` (line 173): `db.transaction` -> `forUpdate()` on the row -> early return if already archived / not archived -> for restore, compute `status = status_before_archive || "todo"` and clear both flags; for archive, `statusFields(before, "archived")` stores the previous status. `bulkStatus` (line 99) locks all rows in id order, rejects if any id is missing (nothing written), skips rows already in the target status, and writes activity plus audit per changed row.
+`models/model.ts` `lifecycleUpdate` (line 170): `db.transaction` -> `forUpdate()` on the row -> early return if already archived / not archived -> for restore, compute `status = status_before_archive || "todo"` and clear both flags; for archive, `statusFields(before, "archived")` stores the previous status. `bulkStatus` (line 99) locks all rows in id order, rejects if any id is missing (nothing written), skips rows already in the target status, and writes activity plus audit per changed row.
 
 ### Boundary 5 — PostgreSQL commits the row, its activity and its audit together
 

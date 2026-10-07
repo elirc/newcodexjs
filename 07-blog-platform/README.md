@@ -22,6 +22,8 @@ Client: `http://localhost:5173`
 
 ## Learning Focus
 
+Topics the labs in `docs/FABLE.md` build; the scaffold does not implement them yet (see `docs/architecture.md`).
+
 - rich text editor dependency wiring
 - HTML sanitization boundary
 - nested comment model notes

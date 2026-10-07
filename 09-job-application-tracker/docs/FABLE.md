@@ -15,7 +15,7 @@ serves flat `applications` CRUD; the workflow engine is yours to build.
 
 **You get:** the standard six-file TypeScript scaffold (`routes.ts` → `controller.ts`
 → `service.ts` → `model.ts`) for `applications` with list/search/stats/CRUD and the
-envelope, plus a one-page React client. Crucially, the scaffold's `status` is just a
+envelope, plus a one-page React client. Crucially, the scaffold's `stage` (and `status`) is just a
 string anyone can set to anything — the "before" state of the whole project.
 
 **You build:**
@@ -34,7 +34,7 @@ API on **:4109**, client on :5173.
 
 ```bash
 createdb job_tracker_dev
-cd 09-job-application-tracker/server && cp .env.example .env
+cd 09-job-application-tracker && cp .env.example .env && cd server   # server/src/config/env.ts loads ../.env
 npm install && npm run migrate && npm run seed && npm run dev
 # another terminal
 cd 09-job-application-tracker/client && npm install && npm run dev
@@ -44,7 +44,7 @@ cd 09-job-application-tracker/client && npm install && npm run dev
 curl "http://localhost:4109/api/applications"
 # the "before" state — an illegal jump the scaffold happily allows:
 curl -X PUT http://localhost:4109/api/applications/1 \
-  -H "Content-Type: application/json" -d '{"status":"accepted"}'
+  -H "Content-Type: application/json" -d '{"stage":"accepted"}'
 ```
 
 Scaffold tour: 20 minutes, same reading order as Project 6 §3.
@@ -68,7 +68,7 @@ const TRANSITIONS: Record<Stage, Stage[]> = {
 
 - New endpoint: `POST /api/applications/:id/transition` with `{to, note?}`. Illegal
   transitions → 409 with a message naming the allowed next stages.
-- **Remove `status` from the fields a plain `PUT` may touch** (edit the service's
+- **Remove `stage` from the fields a plain `PUT` may touch** (edit the service's
   allow-list) — a state machine you can bypass isn't one. The curl in §2 must now fail.
 - Terminal states (`accepted`/`rejected`/`withdrawn`) accept no transitions; decide
   whether a "reopen" escape hatch exists and who may use it — write the decision down.
@@ -125,7 +125,7 @@ event-sourced aggregates)? When is the boring answer ("an index, it's fine") cor
 ## 5. Common traps
 
 - **Enforcing the machine only in the UI:** hiding illegal buttons is UX; the service check is the guarantee. Both, always.
-- **Race on concurrent transitions:** two tabs both move `applied → screening`. Guard with `WHERE status = :from` in the UPDATE and check affected-row count — optimistic concurrency in one line.
+- **Race on concurrent transitions:** two tabs both move `applied → screening`. Guard with `WHERE stage = :from` in the UPDATE and check affected-row count — optimistic concurrency in one line.
 - **History without `from_stage`:** you can reconstruct it by ordering, until one row is deleted or backfilled. Store both ends of the edge.
 - **`multer` file dropped before validation:** validate *then* persist to the final location; clean up temp files on the reject path.
 

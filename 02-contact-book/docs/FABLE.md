@@ -19,7 +19,7 @@ model flow and the response envelope.
 | Many-to-many tags | `contact_tags` join table, `tagModel.js`, `tagService.js` | The relational pattern behind labels, categories, permissions — everywhere. |
 | Bulk delete | `POST /api/contacts/bulk-delete` | Operating on N rows safely, and why it's a POST, not a DELETE. |
 | CSV import/export | `server/src/utils/csv.js`, `/export` and `/import` routes | Data in/out of the system — a boundary where validation really earns its pay. |
-| Sortable table + detail view | client features | Table-driven UI state: page, sort column, sort direction, search, filters — all at once. |
+| Sortable table + detail view | `client/src/App.jsx` (`ContactTable`, detail panel) | Table-driven UI state: page, sort column, sort direction, search, filters — all at once. |
 
 **Stack:** React 18 + Vite / Express + Knex + PostgreSQL / JavaScript. Two resources
 this time: contacts and tags, each with its own routes/controller/service/model pair.
@@ -36,7 +36,7 @@ cd 02-contact-book/client && npm install && npm run dev
 ```
 
 The server port comes from `server/src/config/env.js` (default **3002**; override with
-`PORT` in `.env` — copy `.env.example` first). Client runs on :5173.
+`PORT` in `.env` — copy `.env.example` first). Client runs on :5172 (`client/package.json` dev script).
 
 **Prove the new patterns work from the terminal:**
 
@@ -59,13 +59,13 @@ curl -X POST http://localhost:3002/api/contacts/bulk-delete \
 | # | File | Notice this |
 |---|------|-------------|
 | 1 | `server/src/routes/contactRoutes.js` | `/export` and `/import` are declared **before** `/:id`. Same route-ordering lesson as Project 1, now with real consequences. |
-| 2 | `server/src/services/contactService.js` | How pagination inputs are clamped (page ≥ 1, limit capped). Unvalidated `limit=100000` is a self-inflicted denial of service. |
+| 2 | `server/src/services/contactService.js` | How pagination inputs are validated: page < 1 or limit outside 1–100 is rejected with a 400 (the model also caps limit at 100). Unvalidated `limit=100000` is a self-inflicted denial of service. |
 | 3 | `server/src/models/contactModel.js` | The list query: `where ilike` search across fields, tag filtering through the join table, `limit/offset`, plus a **separate count query** for total pages. Read this one twice. |
-| 4 | `server/src/models/tagModel.js` + `tagService.js` | The join table dance: attach/detach tags when a contact is saved. Look for how it avoids orphaned rows. |
+| 4 | `server/src/models/contactModel.js` (`replaceContactTags`) + `tagModel.js` | The join table dance: tags are replaced (delete + insert in a transaction) when a contact is saved — this lives in the contact model, not `tagService.js`. Look for how `ON DELETE CASCADE` avoids orphaned junction rows. |
 | 5 | `server/src/utils/csv.js` | Escaping rules (commas, quotes, newlines in fields). CSV is deceptively hard — this file is why you use a battle-tested approach instead of `split(',')`. |
 | 6 | `client/src/features/contacts/useDebounce.js` | ~10 lines that teach `useEffect` cleanup properly: set a timer, cancel it on next keystroke. |
 | 7 | `client/src/services/api.js` | How query params (page, search, sort, tag) are assembled in one place. |
-| 8 | Client table + filter components | The page holds a *bundle* of list state. Count the pieces: page, limit, search, sort, order, tag filter. Now imagine adding one more — where do you touch? |
+| 8 | `client/src/App.jsx` (table + toolbar) | The page holds a *bundle* of list state. Count the pieces: page, limit, search, sort, order, tag filter. Now imagine adding one more — where do you touch? |
 
 ---
 
@@ -99,8 +99,9 @@ insert-then-report? What does this code do, and what would you choose?*
    last page.
 4. **Tag with color validation:** enforce that tag colors are valid hex codes on the
    server. Decide where the check belongs (service) and what the error envelope returns.
-5. **Make bulk-delete transactional:** if one id fails, nothing is deleted. Learn
-   `knex.transaction()` here — it becomes central in Projects 5, 9, and 10.
+5. **Make create-contact transactional:** bulk delete is already a single
+   `whereIn(...).del()` statement (atomic on its own), but `createContact` inserts the
+   contact and writes its tags in separate steps. Wrap both in one `knex.transaction()` — it becomes central in Projects 5, 9, and 10.
 6. **Import dry-run mode:** `?dryRun=true` validates the CSV and reports per-row errors
    without inserting. This is a genuinely senior-friendly API design touch.
 

@@ -66,3 +66,7 @@ Environment values may include secrets in normal use. The teaching examples use 
 These are focused learning improvements, not a production-readiness certification. Existing integrations and all optional exercises are outside the checked boundary unless named above.
 
 Delivery hashes and local course links are checked after applying the files. Logs, screenshots, diffs and backups are in AstraOrganized2/astrafinalplan/implementation/batch04. The combined report is AstraOrganized2/astrdocs/ALL_75_PROJECTS_REPORT.md.
+
+## Documentation accuracy pass (2026-10-06)
+
+Re-checked every `path:line` citation, relative link and backticked repository path in README.md, docs/ and astraupskill/ against the source; all resolve. Fixed 04-TESTING-AND-DEBUGGING.md (variables have no enabled flag; an explicit `environmentId` wins over the active environment; a timeout is reported as `status: 0` inside a 200, not a 502) and docs/FABLE.md (headers are arrays of pairs). Expanded docs/architecture.md with a verified proxy trace and source-confirmed findings. No code, tests or packages were run or changed in this pass.

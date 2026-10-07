@@ -9,7 +9,7 @@ A self-contained TypeScript storefront for learning catalog filters, carts, chec
    cd server && npm install
    cd ../client && npm install
    ```
-2. Copy `.env.example` into `server/.env` and create the database.
+2. Copy the project-root `.env.example` into `server/.env` and create the database. Note: the `DATABASE_URL` in `.env.example` reads `...localhost:5432=ecommerce_storefront`; change the `=` to `/` or the URL points at the default database. (The root `package.json` also offers `npm run db:migrate`, `npm run db:seed`, `npm run dev` and `npm test`; tests need `ASTRA_TEST_DATABASE_URL` pointing at an `astra_test_*` database.)
 3. Run:
    ```bash
    cd server
@@ -22,7 +22,7 @@ A self-contained TypeScript storefront for learning catalog filters, carts, chec
 
 ## Demo auth
 
-Authenticated routes use `x-demo-user-id`. Guest cart routes use `x-session-id`, and the client persists a session id in `localStorage`.
+Authenticated routes use `x-demo-user-id`. Guest cart routes use `x-session-id`, and the client persists a session id in `localStorage`. Because the bundled client always sends `x-demo-user-id: 2`, the server uses that user's cart; the guest cart and `POST /api/cart/merge` are reachable only from curl (see docs/architecture.md).
 
 ## Included scope
 

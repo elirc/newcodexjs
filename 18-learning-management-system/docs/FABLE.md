@@ -11,17 +11,20 @@ progress) that turns a flat record into the deepest hierarchy in the curriculum.
 **Domain specifics:** school-scoped courses, `status`
 `draft/review/published/retired/archived`, priority reused as merchandising weight
 (`low/medium/high/featured` — note the scaffold's "priority" concept bent to a new
-meaning; that bending is itself a lesson), review comments, saved instructor views,
-bulk status operations, audit log pitched at curriculum changes.
+meaning; that bending is itself a lesson, and because the column is text, `featured`
+sorts *last* in a descending priority sort), generic comments usable for review notes,
+saved views, bulk status operations, audit log pitched at curriculum changes. Modules,
+lessons and enrollments do not exist yet (lesson counts live in `metadata`), and any
+status may follow any other today.
 
 **Stack:** React 18 + Vite + TypeScript / Express + Knex + PostgreSQL. API on **:4118**.
 
 ## 1. Run it (10 minutes)
 
 ```bash
-# create the DB named in server/.env.example, then:
-cd 18-learning-management-system/server && cp .env.example .env
-npm install && npm run migrate && npm run seed && npm run dev
+# the server loads ../.env (relative to server/), i.e. a project-root .env:
+cd 18-learning-management-system && cp .env.example .env   # create the DB_NAME it names
+cd server && npm install && npm run migrate && npm run seed && npm run dev
 # another terminal
 cd 18-learning-management-system/client && npm install && npm run dev
 ```
@@ -30,7 +33,7 @@ cd 18-learning-management-system/client && npm install && npm run dev
 curl "http://localhost:4118/api/courses?status=published"
 curl "http://localhost:4118/api/courses/dashboard"
 curl -X POST http://localhost:4118/api/courses/bulk/status -H "content-type: application/json" \
-  -H "x-role: operator" -d '{"ids":[1,2],"status":"review"}'
+  -H "x-demo-role: operator" -d '{"ids":[1,2],"status":"review"}'
 curl "http://localhost:4118/api/courses/audit?limit=10"
 ```
 

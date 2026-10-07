@@ -61,7 +61,7 @@ if (!question) throw new NotFoundError("Question not found");
 await assertOwner(question.survey_id, userId);
 ```
 
-Reference test skeleton: insert user 2, create a survey and a question as user 1 (`{ "x-user-id": "1" }`), then `PUT /api/questions/<id>` as user 2 -> 404 and `SELECT title FROM questions WHERE id = <id>` unchanged; `POST /api/surveys/<sid>/questions` as user 2 -> 404 and question count unchanged; the same as user 1 -> 200/201.
+Reference test skeleton: insert user 2, create a survey and a question as user 1 (`{ "x-demo-user-id": "1" }`; the server reads `x-demo-user-id`, not `x-user-id`), then `PUT /api/questions/<id>` as user 2 -> 404 and `SELECT title FROM questions WHERE id = <id>` unchanged; `POST /api/surveys/<sid>/questions` as user 2 -> 404 and question count unchanged; the same as user 1 -> 200/201.
 
 Review: explain why the check is done by survey id even for question routes, why 404 rather than 403 here, and what would change if the demo header were replaced by a signed session (nothing in `assertOwner`; only where `userId` comes from).
 

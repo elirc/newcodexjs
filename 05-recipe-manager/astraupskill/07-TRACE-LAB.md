@@ -166,19 +166,19 @@ Alice owns recipe 10. Bob signs in and supplies Alice's id in an update body. Th
 
 ### Boundary 1 — the recipe form decides what to send
 
-`client/src/features/recipes` builds the nested body (`ingredients[]`, `steps[]`, `categoryIds[]`, `isPublic`) and sends it with the stored access token; a forged `user_id` in the body is possible from the client and is exactly what the first test sends.
+The shipped client has no edit page: `client/src/pages/CreateRecipePage.tsx` builds the same nested body (`ingredients[]`, `steps[]`, `categoryIds[]`, `isPublic`) for create only, and `client/src/services/recipes.ts` has no update function. The `PUT` in this trace is sent directly (curl or the test harness); a forged `user_id` in the body is exactly what the first test sends.
 
 ### Boundary 2 — the request leaves the browser
 
-`PUT /api/recipes/:id` with `Authorization: Bearer <access token>`; `client/src/services` unwraps the envelope. A 403 arrives as `error.message` and the form keeps its draft.
+`PUT /api/recipes/:id` with `Authorization: Bearer <access token>` (in the browser, `setAccessToken` in `client/src/services/api.ts` installs that header). The client has no axios interceptor and no `catch` around recipe writes, so a 403 would surface only as a rejected promise; an edit form you build in the exercises must handle it.
 
-### Boundary 3 — authentication, then validation
+### Boundary 3 — authentication, then ownership, then validation
 
-`server/src/middleware/auth` verifies the JWT and attaches the user; the controller calls `recipeService.updateRecipeForUser(userId, id, body)`, which runs `parseRecipeInput` (line 17) on the raw body. Anything in the body that is not part of `RecipeInput`, including `user_id`, is dropped here.
+`server/src/middleware/auth.ts` verifies the JWT and attaches the user; the controller calls `recipeService.updateRecipeForUser(userId, id, body)`, which locks the row and checks ownership first, then runs `parseRecipeInput` (line 17) on the raw body (line 94). Anything in the body that is not part of `RecipeInput`, including `user_id`, is dropped here.
 
 ### Boundary 4 — ownership is read inside the transaction
 
-`updateRecipeForUser` (`recipeService.ts:88`) opens `db.transaction`, `SELECT ... FOR UPDATE` on the recipe, compares `user_id` with the caller and throws `ForbiddenError` (403) on mismatch, all before any write. Reads of a private recipe go through the same owner check (`is_public` false and not yours -> 403); the new fourth test proves an omitted `isPublic` means private.
+`updateRecipeForUser` (`server/src/services/recipeService.ts:88`) opens `db.transaction`, `SELECT ... FOR UPDATE` on the recipe, compares `user_id` with the caller and throws `ForbiddenError` (403) on mismatch, all before any write. Reads of a private recipe go through the same owner check (`is_public` false and not yours -> 403); the new fourth test proves an omitted `isPublic` means private.
 
 ### Boundary 5 — the nested replacement commits or rolls back
 

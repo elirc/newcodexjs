@@ -22,6 +22,7 @@ Large full-stack TypeScript learning app using the same core stack as the earlie
 ## Run Locally
 
 ```bash
+cp .env.example .env   # project root; the server loads ../.env from server/
 npm --prefix server install
 npm --prefix client install
 npm --prefix server run migrate

@@ -12,17 +12,20 @@ trust each other.
 
 **What the scaffold gives you:** vendor-scoped `listings` with a moderation lifecycle
 (`draft/active/flagged/paused/archived`), priority-as-merchandising
-(`low/medium/high/featured`), review comments, bulk listing operations, audit framed
-as "revenue-impacting changes," dashboard, and the kit's plumbing. API on **:4120**.
+(`low/medium/high/featured`), generic comments, bulk listing status operations, audit
+framed as "revenue-impacting changes," dashboard, and the kit's plumbing. API on **:4120**.
+What it does *not* give you yet: orders, payments, carts or ledgers; price and inventory
+live only in `metadata` JSON; and `vendor_id` is stamped on rows but never used to
+filter reads (the request context has no vendor identity).
 
 **Stack:** React 18 + Vite + TypeScript / Express + Knex + PostgreSQL.
 
 ## 1. Run it (10 minutes)
 
 ```bash
-# create the DB named in server/.env.example, then:
-cd 20-marketplace-platform/server && cp .env.example .env
-npm install && npm run migrate && npm run seed && npm run dev
+# the server loads ../.env (relative to server/), i.e. a project-root .env:
+cd 20-marketplace-platform && cp .env.example .env   # create the DB_NAME it names
+cd server && npm install && npm run migrate && npm run seed && npm run dev
 # another terminal
 cd 20-marketplace-platform/client && npm install && npm run dev
 ```
@@ -32,7 +35,7 @@ curl "http://localhost:4120/api/listings?status=active&sort=priority"
 curl "http://localhost:4120/api/listings/dashboard"
 # moderation: flag a listing, check the audit names the actor
 curl -X POST http://localhost:4120/api/listings/bulk/status -H "content-type: application/json" \
-  -H "x-role: operator" -d '{"ids":[1],"status":"flagged"}'
+  -H "x-demo-user: you@example.com" -H "x-demo-role: operator" -d '{"ids":[1],"status":"flagged"}'
 curl "http://localhost:4120/api/listings/audit?limit=5"
 ```
 
@@ -64,9 +67,10 @@ labs below grow it into a marketplace.
    internals in `metadata`). P18's Lab 2, commerce edition.
 
 ### Level 2 — Mid
-3. **Vendors as first-class tenants:** a `vendors` table; listings get a real
-   `vendor_id`; the context middleware maps demo identity → vendor; and *every*
-   vendor-facing query filters by it. Prove isolation with the test that matters:
+3. **Vendors as first-class tenants:** a `vendors` table and a `listings.vendor_id`
+   FK already exist, but nothing enforces them; make the context middleware map demo
+   identity → vendor, and make *every* vendor-facing query filter by it (and stop
+   `vendor_id` being editable through `PUT`). Prove isolation with the test that matters:
    vendor A curls vendor B's draft listing and gets a 404 (not 403 — decide and
    defend, citing P5's ownership question). Operators see everything; the audit log
    distinguishes vendor edits from platform moderation.

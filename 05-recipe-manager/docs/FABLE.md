@@ -18,7 +18,7 @@ Budget more time here than for Projects 1–4 combined. It's worth it — auth +
 | JWT access + refresh | `services/authService.ts`, `middleware/auth.ts` | Short-lived bearer token in memory, long-lived refresh token in an HTTP-only cookie. Learn *why the split exists*. |
 | Route protection, two flavors | `middleware/auth.ts`: `requireAuth` vs. `optionalAuth` | Public browsing works logged-out; favorites/ownership light up when logged in. Read both — the asymmetry is the lesson. |
 | Ownership checks | `recipeService.ts` update/delete paths | 403 vs. 404 vs. 401 — three different "no" answers, each meaning something. |
-| Knex transactions | recipe create: recipe + ingredients + steps + categories in **one transaction** | Partial writes are corruption. This is the pattern Projects 9–10 build on. |
+| Knex transactions | recipe create: recipe + ingredients + steps + categories in **one transaction** | Partial writes are corruption. (Projects 6–10 as shipped use no transactions — grep `transaction` in their `server/src` — so this is the pattern you carry into their exercises.) |
 | React auth context | `client/src/context/AuthContext.tsx` + `services/api.ts` | Login state as app-wide context; token installed via `setAccessToken()`; `withCredentials: true` carries the refresh cookie. |
 | Password hashing | `authService.ts` + `models/userModel.ts` | bcrypt, and why the users table must never leak `password_hash` in responses. |
 
@@ -31,7 +31,8 @@ API on **:4005**, client on **:5175**.
 
 ```bash
 createdb recipe_manager
-cd 05-recipe-manager/server && cp .env.example .env   # includes JWT secrets
+cp 05-recipe-manager/.env.example 05-recipe-manager/.env   # includes JWT secrets; server/src/config/env.ts loads ../.env
+cd 05-recipe-manager/server
 npm install && npm run migrate && npm run seed && npm run dev
 # another terminal
 cd 05-recipe-manager/client && npm install && npm run dev
@@ -70,7 +71,7 @@ curl "http://localhost:4005/api/recipes?search=noodle"
 | 5 | `server/src/services/recipeService.ts` | Two things: the **ownership check** on update/delete, and the **transaction** on create. For the transaction, trace what happens if inserting step 3 of 5 throws. |
 | 6 | `server/src/models/recipeModel.ts` + `userModel.ts` | How the model keeps `password_hash` out of returned columns, and how nested reads (recipe + ingredients + steps) are assembled. |
 | 7 | `server/src/types/express.d.ts` | How `req.user` becomes type-safe — declaration merging. Small file, very transferable trick. |
-| 8 | `client/src/services/api.ts` | 13 lines: `withCredentials: true` (cookie travels) + `setAccessToken` (bearer header). The client's entire auth plumbing. |
+| 8 | `client/src/services/api.ts` | 12 lines: `withCredentials: true` (cookie travels) + `setAccessToken` (bearer header). The client's entire auth plumbing. |
 | 9 | `client/src/context/AuthContext.tsx` | Where the access token lives (memory, not localStorage — figure out why), how refresh-on-load restores a session, how logout tears it down. |
 | 10 | `client/src/pages/` | `AuthPages`, `CreateRecipePage`, `MyRecipesPage` — note how pages gate on auth context rather than checking tokens themselves. |
 
@@ -95,8 +96,10 @@ or **404** ("nothing to see")? What does each leak?
 ## 5. The challenge ladder
 
 ### Level 1 — Junior
-1. **Add `prep_time_minutes` to recipes** end-to-end: migration, domain type, service
-   validation, model, client type, form field. Count how many files TypeScript *forces*
+1. **Add a `cuisine` column to recipes** end-to-end: new migration, domain type, service
+   validation, model, client type, form field. (`prep_time_minutes` already exists —
+   trace it through `server/src/services/recipeService.ts` and `models/recipeModel.ts`
+   first as your template.) Count how many files TypeScript *forces*
    you to update — that friction is the feature.
 2. **Break auth on purpose:** change one character of `JWT_ACCESS_SECRET` in `.env`,
    restart, and narrate exactly which requests fail, with which status, and why the
@@ -111,8 +114,10 @@ or **404** ("nothing to see")? What does each leak?
    retry the original request; queue concurrent 401s behind a single refresh. This is
    the canonical "mid-level frontend auth" exercise — the current code installs the
    token but does not auto-recover.
-5. **Test the transaction:** write a test that makes ingredient insertion fail mid-create
-   (bad data or a mocked throw) and asserts *zero* recipe rows were committed.
+5. **Test the transaction:** `server/test/ownership.test.ts` already proves rollback by
+   failing the *category* insert (`categoryIds: [2147483647]`). Add a case that fails
+   *ingredient* insertion mid-create (e.g. a mocked throw) and asserts *zero* recipe rows
+   were committed.
 
 ### Level 3 — Senior
 6. **Threat-model memo (1 page):** where does this app's design stand on XSS stealing

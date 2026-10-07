@@ -66,3 +66,7 @@ The date window compares instants, unlike the domain apps' date-only fields. At 
 These are focused learning improvements, not a production-readiness certification. Existing integrations and all optional exercises are outside the checked boundary unless named above.
 
 Delivery hashes and local course links are checked after applying the files. Logs, screenshots, diffs and backups are in AstraOrganized2/astrafinalplan/implementation/batch04. The combined report is AstraOrganized2/astrdocs/ALL_75_PROJECTS_REPORT.md.
+
+## Documentation accuracy pass (2026-10-06)
+
+Re-checked every `path:line` citation, relative link and backticked repository path in README.md, docs/ and astraupskill/ against the source (none out of range). Corrected the demo header name in 05-PRACTICE.md and 06-SOLUTIONS-AND-REVIEW.md (the server reads `x-demo-user-id`; `test/responses.test.ts` sends `x-user-id`, which is ignored). Expanded docs/architecture.md with a verified response-submission trace and source-confirmed findings. No code, tests or packages were run or changed in this pass.

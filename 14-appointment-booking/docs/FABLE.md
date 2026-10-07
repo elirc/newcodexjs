@@ -19,7 +19,7 @@ whole curriculum.
 | Interval conflict detection | slot/appointment services | The overlap predicate `(startA < endB && startB < endA)` and its off-by-one edges (back-to-back bookings must NOT conflict). |
 | Timezones done deliberately | `date-fns-tz` at the slot boundary; UTC `timestamptz` in Postgres | The golden rule demonstrated: store UTC, convert at the *edge*, keep "wall-clock" concepts (weekly availability) separate from instants. |
 | Policy rules | cancellation with provider policy, reschedule flow | Business rules with time math: "cancel up to N hours before start" — computed against *whose* clock? |
-| Roles via headers | `x-user-id` / `x-user-role: provider` | Customer vs. provider — first two-role API. Provider routes manage availability; customer routes book. |
+| Roles via headers | `x-user-id` / `x-user-role: provider` | Customer vs. provider — first two-role API. Note that no server code reads the role header: provider routes look up the provider profile by `x-user-id`, so any user id with a profile acts as that provider. |
 | Notifications as rows | `models/notificationModel.ts` | The outbox idea in embryo: record the intent to notify in the same DB (and transaction?) as the booking. Real email comes later; the *pattern* is the point. |
 | Multi-model backend | 5 models, 3 services, 2 controllers | The biggest layered backend yet that's still readable in a sitting. |
 
@@ -30,10 +30,10 @@ API on **:4214**, client on **:5174**. DB: `appointment_booking`.
 
 ```bash
 createdb appointment_booking
-cd 14-appointment-booking/server && cp .env.example .env
+cd 14-appointment-booking/server && cp ../.env.example .env
 npm install && npm run migrate && npm run seed && npm run dev
 # another terminal
-cd 14-appointment-booking/client && cp .env.example .env 2>/dev/null; npm install && npm run dev
+cd 14-appointment-booking/client && npm install && npm run dev   # optional: a client/.env with VITE_API_URL (see ../.env.example)
 ```
 
 Demo identities: customer `x-user-id: 4`; provider `x-user-id: 1` + `x-user-role: provider`.
@@ -41,12 +41,12 @@ Demo identities: customer `x-user-id: 4`; provider `x-user-id: 1` + `x-user-role
 **Interrogate the slot engine first — it's the heart:**
 
 ```bash
-# available slots for a provider/service/date (check providerRoutes.ts for exact path/params)
-curl "http://localhost:4214/api/providers/1/slots?serviceId=1&date=2026-07-06" -H "x-user-id: 4"
+# available slots for a provider/service/date (route: providerRoutes.ts, /providers/:id/available-slots)
+curl "http://localhost:4214/api/providers/1/available-slots?serviceId=1&date=2026-07-06" -H "x-user-id: 4"
 
 # book one, then re-request the slots — the booked one must vanish
 curl -X POST "http://localhost:4214/api/appointments" -H "content-type: application/json" \
-  -H "x-user-id: 4" -d '{"providerId":1,"serviceId":1,"startsAt":"..."}'
+  -H "x-user-id: 4" -d '{"providerId":1,"serviceId":1,"startTime":"<an ISO startTime from the slot list>"}'
 ```
 
 Then in the UI: book as the customer, flip to the provider dashboard, and find the
@@ -58,7 +58,7 @@ same appointment in "today's schedule."
 |---|------|-------------|
 | 1 | `server/db/migrations/` | The time columns. Which are `timestamptz` (instants: appointments) vs. time/weekday fields (wall-clock: weekly availability)? That split IS the timezone design. |
 | 2 | `server/src/services/slotService.ts` | **Read three times.** Pass 1: shape (inputs → candidate slots → filters → output). Pass 2: the override logic — how a date-specific override beats the weekly rule. Pass 3: the conflict filter against existing appointments, and where timezone conversion happens (find every `date-fns-tz` call; there should be few, at the edges). |
-| 3 | `server/src/services/appointmentService.ts` | Booking: does it re-validate the slot server-side, or trust the client's chosen time? (It must re-validate — race between two bookers.) Then the cancellation policy math and the reschedule path (cancel+rebook, or mutate?). |
+| 3 | `server/src/services/appointmentService.ts` | Booking: does it re-validate the slot server-side, or trust the client's chosen time? (It re-checks *conflicts* under a provider lock, but not availability hours, past times or the advance window — compare with `slotService`.) Then the cancellation policy math and the reschedule path (cancel+rebook, or mutate?). |
 | 4 | `server/src/middleware/requestContext.ts` + `types/express.d.ts` | How `x-user-id`/`x-user-role` become a typed `req` context — the same declaration-merging trick as Project 5. |
 | 5 | `server/src/services/providerService.ts` | Availability CRUD and override management — what stops a provider deleting availability that has future booked appointments inside it? (Check. If nothing does, you found Lab 4.) |
 | 6 | `models/notificationModel.ts` + its call sites | Which events write notifications, and whether they're inside the booking transaction. |
@@ -75,9 +75,10 @@ the API, you own the algorithm.
 ## 5. The challenge ladder
 
 ### Level 1 — Junior
-1. **Add a buffer time per service** (e.g., 10 min cleanup after each appointment)
-   that the slot generator respects. One column, one adjustment in the conflict
-   math — and a test proving back-to-back bookings now space out.
+1. **Make the buffer real.** A provider-level `booking_buffer_minutes` already
+   exists and the slot generator spaces slots by it, but the conflict queries ignore
+   it. Add it to the overlap math (or move it per service) and write a test proving
+   a direct API booking can no longer sit flush against another appointment.
 2. **Surface the cancellation deadline in the UI:** "free cancellation until Tue
    14:00" computed by the server, rendered by the client. Server computes because
    policy is business logic (same argument as P13's shipping banner).

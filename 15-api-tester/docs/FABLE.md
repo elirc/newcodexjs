@@ -30,10 +30,10 @@ API on **:4215**, client on **:5175**. DB: `api_tester`.
 
 ```bash
 createdb api_tester
-cd 15-api-tester/server && cp .env.example .env
+cd 15-api-tester/server && cp ../.env.example .env
 npm install && npm run migrate && npm run seed && npm run dev
 # another terminal
-cd 15-api-tester/client && cp .env.example .env 2>/dev/null; npm install && npm run dev
+cd 15-api-tester/client && npm install && npm run dev   # optional: a client/.env with VITE_API_URL (see ../.env.example)
 ```
 
 **Best first session: point the tool at your own earlier projects.** Start Project 1's
@@ -44,7 +44,9 @@ find the entry in History. You are now dogfooding — every annoyance you feel i
 ```bash
 # the proxy is itself an API — drive it raw:
 curl -X POST http://localhost:4215/api/proxy -H "content-type: application/json" \
-  -d '{"method":"GET","url":"http://localhost:4000/api/tasks","headers":{}}'
+  -d '{"method":"GET","url":"http://localhost:4000/api/tasks","headers":[]}'
+# headers/params are arrays of {key, value, enabled}; an object fails validation
+# (and currently surfaces as a 500, see docs/architecture.md)
 ```
 
 ## 3. Guided code tour (read in this order)
@@ -56,7 +58,7 @@ curl -X POST http://localhost:4215/api/proxy -H "content-type: application/json"
 | 3 | `server/src/validators/schemas.ts` | One file schemas the whole domain — method enums, URL rules, header shapes. Compare its URL validation strictness against what the proxy will actually be handed. |
 | 4 | Collection service/model | The tree: one-level folders + sort fields. How does duplicate/import remap ids (Project 11's deep-copy problem)? What stops a folder inside a folder? |
 | 5 | `server/src/services/historyService.ts` | Pagination over an append-only table; what's stored per entry (the response body too? size limits?). |
-| 6 | `client/src/App.tsx` + the three panels | Layout state vs. data state: selected request, unsaved edits, response in flight. Where does an *unsaved* request live while you edit it? |
+| 6 | `client/src/pages/WorkbenchPage.tsx` (mounted by `App.tsx`) + the three panels | Layout state vs. data state: selected request, unsaved edits, response in flight. Where does an *unsaved* request live while you edit it? |
 | 7 | `client/src/components/ui/CodeEditor.tsx` | CodeMirror as a controlled-ish component: how value/onChange bridge to editor transactions without cursor jumps. |
 
 ## 4. Trace this flow

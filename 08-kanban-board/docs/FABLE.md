@@ -32,7 +32,7 @@ API on **:4108**, client on :5173.
 
 ```bash
 createdb kanban_board_dev
-cd 08-kanban-board/server && cp .env.example .env
+cd 08-kanban-board && cp .env.example .env && cd server   # server/src/config/env.ts loads ../.env
 npm install && npm run migrate && npm run seed && npm run dev
 # another terminal
 cd 08-kanban-board/client && npm install && npm run dev
@@ -44,7 +44,7 @@ curl "http://localhost:4108/api/cards/stats"
 ```
 
 Scaffold tour: 20 minutes, same order as Project 6 §3. Pay special attention to the
-migration (`server/db/migrations/001_init.js`) — Lab 1 extends it.
+migration (`server/db/migrations/001_init.ts`) — Lab 1 extends it.
 
 ## 3. The labs
 

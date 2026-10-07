@@ -32,3 +32,7 @@ From `server`: install dependencies, set `ASTRA_TEST_DATABASE_URL` to your dedic
 The central implementation report in AstraOrganized2/astrafinalplan/TEN_PROJECTS_IMPLEMENTED.md links all ten courses. Machine-readable check results and logs are retained with the implementation tooling in that repository.
 
 Reading the diff: the files Astra touched were re-saved with CRLF line endings and Prettier formatting, so a plain `diff` shows whole files as changed. Compare with `git diff -w`, or `diff -r --strip-trailing-cr -w <backup> <project>` against the pre-change backup, to see only the real edits.
+
+## Accuracy pass 2026-10-06
+
+Documentation accuracy pass (2026-10-06): every relative link and `path:line` citation in this course, README.md and docs/ was re-checked against the files on disk (all resolve and are in range), npm script names were matched against package.json, and the trace-lab client-side claims were re-read against the client source. Fixed: chapter 7 cited recipeService.ts line 88 without its directory, and Boundary 1-2 described a `client/src/features/recipes` edit form with error handling; the shipped client has a create page only and no update call.

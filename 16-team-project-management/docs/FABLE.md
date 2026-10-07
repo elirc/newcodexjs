@@ -1,7 +1,7 @@
 # FABLE Guide — Team Project Management
 
 **Project 16: the enterprise pattern kit — read this one deeply.** Projects 16–20 are
-five apps built from the same compact scaffold (~600 lines of server+client core), each
+five apps built from the same compact scaffold (about 1,150 lines of `server/src` + `client/src` TypeScript here), each
 wearing a different domain. The scaffold's point is a set of patterns that separate
 "app that works" from "app a company can operate": **soft delete, archive/restore,
 audit logs, request context (actor + request id), saved views, bulk operations, role
@@ -22,7 +22,7 @@ reviewer you want to become.
 | Archive ≠ delete | `PATCH /:id/archive` / `/restore`, `includeArchived` query | Two lifecycles: archived is *done but reportable*; deleted is *hidden from operations*. Conflating them is a classic data-model smell. |
 | Request context | `middleware/requestContext.ts` → `Context = {actor, requestId, role}` | Every write can answer "who did this, in which request?" — the prerequisite for audit, debugging, and support. |
 | Audit log | model writes audit rows alongside mutations; `GET /api/tasks/audit` | The operational ledger (Project 10's idea applied to *actions* instead of stock). |
-| Role gate | `service.ts#requireOperator` — operator/manager/admin | Authorization as an explicit, greppable check at the top of each mutating service function. |
+| Role gate | `service.ts#requireOperator` — operator/manager/admin | Authorization as an explicit, greppable check at the top of each mutating service function (except `addComment`). Note the role header defaults to `operator`, so the gate passes when no header is sent. |
 | Saved views | `views` endpoints, filters stored as JSON | User-defined filter bundles — the feature that turns a list into a workflow tool. |
 | Bulk operations | `POST /api/tasks/bulk/status` | N records, one request, one validation pass — and one audit story. |
 | Bounded lists | `normalizeListQuery`: `pageSize` capped at 100, page at 10000, sort allow-listed | Every list input clamped. Compare with Project 2's pagination — same idea, now defensive by default. |
@@ -37,9 +37,9 @@ reviewer you want to become.
 ## 2. Run it (10 minutes)
 
 ```bash
-# create the DB named in server/.env.example, then:
-cd 16-team-project-management/server && cp .env.example .env
-npm install && npm run migrate && npm run seed && npm run dev
+# the server loads ../.env (relative to server/), i.e. a project-root .env:
+cd 16-team-project-management && cp .env.example .env   # create the DB_NAME it names
+cd server && npm install && npm run migrate && npm run seed && npm run dev
 # another terminal
 cd 16-team-project-management/client && npm install && npm run dev
 ```
@@ -52,34 +52,35 @@ curl "http://localhost:4116/api/tasks?page=1&pageSize=25&status=in_progress&sort
 
 # a write carries context — then find it in the audit log
 curl -X POST http://localhost:4116/api/tasks -H "content-type: application/json" \
-  -H "x-actor: fable-reader" -H "x-role: operator" \
+  -H "x-demo-user: fable-reader" -H "x-demo-role: operator" \
   -d '{"title":"study the audit trail","priority":"high"}'
 curl "http://localhost:4116/api/tasks/audit?limit=5"
 
 # lifecycle: archive, prove it vanishes from default lists, restore
-curl -X PATCH http://localhost:4116/api/tasks/1/archive -H "x-role: operator"
+curl -X PATCH http://localhost:4116/api/tasks/1/archive -H "x-demo-role: operator"
 curl "http://localhost:4116/api/tasks" | grep -c '"id":1'          # gone
 curl "http://localhost:4116/api/tasks?includeArchived=true"        # back
-curl -X PATCH http://localhost:4116/api/tasks/1/restore -H "x-role: operator"
+curl -X PATCH http://localhost:4116/api/tasks/1/restore -H "x-demo-role: operator"
 
 # bulk + views + dashboard
 curl -X POST http://localhost:4116/api/tasks/bulk/status -H "content-type: application/json" \
-  -H "x-role: operator" -d '{"ids":[2,3],"status":"done"}'
+  -H "x-demo-role: operator" -d '{"ids":[2,3],"status":"done"}'
 curl "http://localhost:4116/api/tasks/dashboard"
 ```
 
-(Exact context header names: check `middleware/requestContext.ts` — the point is that
-actor/role/request-id arrive as demo headers, the grown-up sibling of P11–14's stubs.)
+(Context headers, from `middleware/requestContext.ts`: `x-demo-user`, `x-demo-role`
+(defaults to `operator`, so the role headers above are optional) and `x-request-id`.
+Actor/role/request-id arrive as demo headers, the grown-up sibling of P11–14's stubs.)
 
 ## 3. Guided code tour (read in this order)
 
 | # | File | Notice this |
 |---|------|-------------|
 | 1 | `server/src/middleware/requestContext.ts` | How headers become a typed `Context` on the request. Every service mutation takes `context` as its last parameter — trace one all the way to the audit row. |
-| 2 | `server/src/services/service.ts` (166 lines — read it all) | `normalizeListQuery` (clamps everything), `sanitizePayload` (allow-list + defaults + enum checks), `requireOperator` at the top of every mutation, and how comments/views/bulk each get their own small validation. This file is a compact map of mid-level service design. |
-| 3 | `server/src/models/model.ts` (200 lines) | Where `deleted_at is null` gets applied (count the query builders that include it — is it *every* one?), how audit rows are written relative to the mutation (same transaction or not? — this matters, verify), and the dashboard aggregates. |
+| 2 | `server/src/services/service.ts` (262 lines — read it all) | `normalizeListQuery` (clamps everything), `sanitizePayload` (allow-list + defaults + enum checks), `requireOperator` at the top of every mutation, and how comments/views/bulk each get their own small validation. This file is a compact map of mid-level service design. |
+| 3 | `server/src/models/model.ts` (333 lines) | Where `deleted_at is null` gets applied (count the query builders that include it — is it *every* one?), how audit rows are written relative to the mutation (same transaction or not? — this matters, verify), and the dashboard aggregates. |
 | 4 | `server/src/routes/routes.ts` | The full surface from the README's highlights. Note which routes skip `requireOperator` (reads, comments?) and whether that's right. |
-| 5 | `client/src/App.tsx` (233 lines) | One file driving list + filters + lifecycle + comments against the API — a serviceable ops UI in an afternoon's read. |
+| 5 | `client/src/App.tsx` (242 lines) | One file driving list + filters + lifecycle + comments against the API — a serviceable ops UI in an afternoon's read. |
 | 6 | `docs/journal.md` | The rationale: soft delete trade-offs, archive semantics, why request ids. Read last so you can argue with it. |
 
 ## 4. The challenge ladder

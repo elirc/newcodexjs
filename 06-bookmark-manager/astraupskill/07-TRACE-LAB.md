@@ -20,11 +20,11 @@ const cases = [
 
 ### Boundary 1 — the bookmark form decides what to send
 
-`client/src/App.tsx` and `client/src/pages`: the form posts `{ title, url, collection, status, tags }` on create and only the edited keys on save; metadata fetch is a separate, optional action that the UI disables when the server reports no allowed hosts (exercise 1).
+`client/src/App.tsx` (the whole UI lives in this one file; there is no `pages` folder): `saveRecord` posts the whole form `{ title, url, collection, status, tags }` on create and also sends the whole form on save (`updateRecord(editingId, form)`), not only the edited keys. Metadata fetch ("Use page title") is a separate, optional action; the button is disabled only while a fetch is in flight (`metadataBusy`). Disabling it when the server reports no allowed hosts is exercise 1.
 
 ### Boundary 2 — the request leaves the browser
 
-`client/src/services`: `POST /api/bookmarks`, `PUT /api/bookmarks/:id`, `GET /api/bookmarks?search=...`; the envelope is unwrapped and the Zod message (`url: Invalid url`) is shown verbatim.
+`client/src/services/api.ts`: `POST /api/bookmarks`, `PUT /api/bookmarks/:id`, `POST /api/bookmarks/metadata`. `listRecords()` is called with no filters; the search box filters the loaded list in the browser (`filteredRecords`), so `GET /api/bookmarks?search=...` is server-side only. `unwrap` reads the envelope only on 2xx. On a 400, axios rejects first with its own message ("Request failed with status code 400"), and that message, not the Zod text, is what `setError` shows. Surfacing the server's message would need an `error.response.data.error.message` read (compare the interceptor in Projects 7-10).
 
 ### Boundary 3 — the service validates with Zod
 

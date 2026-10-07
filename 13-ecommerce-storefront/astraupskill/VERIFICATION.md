@@ -66,3 +66,7 @@ The order, line items, stock decrement and cart removal share one transaction. T
 These are focused learning improvements, not a production-readiness certification. Existing integrations and all optional exercises are outside the checked boundary unless named above.
 
 Delivery hashes and local course links are checked after applying the files. Logs, screenshots, diffs and backups are in AstraOrganized2/astrafinalplan/implementation/batch04. The combined report is AstraOrganized2/astrdocs/ALL_75_PROJECTS_REPORT.md.
+
+## Documentation accuracy pass (2026-10-06)
+
+Re-checked every `path:line` citation, relative link and backticked repository path in README.md, docs/ and astraupskill/ against the source; all resolve. Corrected docs/FABLE.md curl examples (snake_case filters, guest cart needs `x-demo-user-id: 0`, merge reads `x-session-id`, detail is by slug) and noted the malformed `DATABASE_URL` in `.env.example` in README.md. Expanded docs/architecture.md with a verified checkout trace and source-confirmed findings. No code, tests or packages were run or changed in this pass.

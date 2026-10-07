@@ -66,3 +66,7 @@ Polling retrieves messages after a cursor. Membership must be checked on every p
 These are focused learning improvements, not a production-readiness certification. Existing integrations and all optional exercises are outside the checked boundary unless named above.
 
 Delivery hashes and local course links are checked after applying the files. Logs, screenshots, diffs and backups are in AstraOrganized2/astrafinalplan/implementation/batch04. The combined report is AstraOrganized2/astrdocs/ALL_75_PROJECTS_REPORT.md.
+
+## Documentation accuracy pass (2026-10-06)
+
+Re-checked every `path:line` citation, relative link and backticked repository path in README.md, docs/ and astraupskill/ against the source; all resolve. Corrected README and docs/FABLE.md claims that did not match the code (env file location, message body field `content`, typing rows are filtered rather than cleaned up, client port 5174). Expanded docs/architecture.md with a verified send-message trace and source-confirmed findings. No code, tests or packages were run or changed in this pass.

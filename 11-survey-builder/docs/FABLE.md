@@ -21,7 +21,7 @@ This is also the first project with a dedicated **validators layer**: Zod schema
 | Nested aggregate modeling | survey → questions → options tables | Editing a tree of rows: create/update/delete/reorder children without orphaning anything. |
 | Zod validators as a layer | `validators/surveyValidators.ts` + `middleware/validate.ts` | Validation declared once, applied at the route edge — compare with Project 1's hand-rolled service checks. |
 | Public vs. builder API split | public survey rendering + response submission with access codes | Two audiences, one database: the owner edits; anonymous respondents see a *published projection*. |
-| Response aggregation | results endpoints: counts per option, rating averages, matrix totals | GROUP BY over answers, shaped for charts (Project 3's skill, harder shapes). |
+| Response aggregation | results endpoints: counts per option, rating averages, matrix totals | Counts shaped for charts; here computed in JavaScript over all answer rows, a good candidate for a SQL `GROUP BY` refactor. |
 | Deep copy | `POST /api/surveys/:id/duplicate` | Cloning an aggregate: new ids everywhere, relationships preserved. Sneaky-hard. |
 | Demo auth header | `x-demo-user-id` (falls back to `DEMO_USER_ID`) | A deliberate stub. Know exactly what it fakes so you know what real auth (Project 5) would restore. |
 
@@ -31,8 +31,8 @@ API on **:4111** (see `server/src/config/env.ts`), client on :5173.
 ## 2. Run it (10 minutes)
 
 ```bash
-# create the DB named in server/.env.example's DATABASE_URL, then:
-cd 11-survey-builder/server && cp .env.example .env
+# create the DB named in the project-root .env.example's DATABASE_URL, then:
+cd 11-survey-builder/server && cp ../.env.example .env
 npm install && npm run migrate && npm run seed && npm run dev
 # another terminal
 cd 11-survey-builder/client && npm install && npm run dev
@@ -54,7 +54,7 @@ Click through all four client pages before reading code: `SurveysPage` (list),
 |---|------|-------------|
 | 1 | `server/src/config/env.ts` | `z.coerce.number().default(4111)` — even env vars go through a schema. Startup fails loudly on bad config instead of at first request. |
 | 2 | `server/src/validators/surveyValidators.ts` | The runtime shape of a survey definition. Question types, option rules, reorder payloads. This file *is* the product spec. |
-| 3 | `server/src/middleware/validate.ts` | The generic bridge: schema in, 400-with-details out. Compare with what you built in Project 6 Lab 1. |
+| 3 | `server/src/middleware/validate.ts` | The generic bridge: schema in, 400 with the *first* Zod issue's message out (not the full issue list). Compare with what you built in Project 6 Lab 1. |
 | 4 | `server/src/services/surveyService.ts` | The tree logic: how question/option edits are applied, how reordering works, what happens to responses when a question is deleted, and how `duplicate` walks the aggregate. The status rules too — what may change once a survey is `active`? |
 | 5 | `server/src/models/surveyModel.ts` | How the tree is fetched (count the queries for one survey), and how answers are aggregated for results. |
 | 6 | `client/src/features/surveys/SurveyBuilderPage.tsx` | Editing a nested structure in React state before persisting. Where is the draft state — one big object, or per-question? |
@@ -63,15 +63,19 @@ Click through all four client pages before reading code: `SurveysPage` (list),
 ## 4. The challenge ladder
 
 ### Level 1 — Junior
-1. **Add a "required question" flag** end-to-end: validator, migration, builder toggle,
-   public-page enforcement (client + server), results unaffected. Classic
-   every-layer exercise on a nested model.
+1. **Trace the existing "required question" flag** end-to-end: it already exists
+   (`is_required` in the migration, `questionSchema`, and the blank-answer check in
+   `buildAnswerRows`). Find each layer, then add the missing piece: client-side
+   enforcement on the public page before submit. Classic every-layer exercise on a
+   nested model.
 2. **Break the validator on purpose:** POST a survey with an unknown question type and
    an option on a text question. Read the 400 bodies — could a frontend dev fix their
    payload from the message alone? If not, improve the error mapping.
 
 ### Level 2 — Mid
-3. **Add a new question type** (e.g., `number` with min/max). List every file you
+3. **Add a new question type** (e.g., `email`; note `number` already exists and stores
+   `{min, max}` in `config` but the server does not enforce them, so enforcing them is
+   a good warm-up). List every file you
    touched, in order. That list is the cost of schema-driven design — compare it
    against the alternative (a hardcoded form per survey) and note what you got in
    exchange.
@@ -99,7 +103,7 @@ Click through all four client pages before reading code: `SurveysPage` (list),
 
 - What does `validateBody(schema)` centralize that per-service checks scatter — and what *can't* it check (cross-row rules like "position must be unique within this survey")?
 - Why does duplication need to remap child foreign keys, and what's the naive bug (children of the copy pointing at the original)?
-- Why do the results endpoints aggregate in SQL rather than fetching all responses? (Project 3's answer, at survey scale.)
+- `getResults` currently loads every answer row and counts in JavaScript (`surveyModel.listAnswers` + `surveyService.getResults`). When would you move that into SQL `GROUP BY`, and what would the multi-choice count use instead of splitting `answer_text`?
 - What exactly does the access code protect, and what doesn't it protect (replay, sharing)?
 - Where is the single source of truth for "what question types exist"? Is it truly single?
 

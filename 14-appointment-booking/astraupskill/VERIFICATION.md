@@ -66,3 +66,7 @@ The booking notification is a database row, not an email sent by this task. Inse
 These are focused learning improvements, not a production-readiness certification. Existing integrations and all optional exercises are outside the checked boundary unless named above.
 
 Delivery hashes and local course links are checked after applying the files. Logs, screenshots, diffs and backups are in AstraOrganized2/astrafinalplan/implementation/batch04. The combined report is AstraOrganized2/astrdocs/ALL_75_PROJECTS_REPORT.md.
+
+## Documentation accuracy pass (2026-10-06)
+
+Re-checked every `path:line` citation, relative link and backticked repository path in README.md, docs/ and astraupskill/ against the source. Fixed 03-WORKED-CHANGE.md and 07-TRACE-LAB.md: the booking service function is `bookAppointment` (line 29), new rows get `confirmed` from the migration's column default, and `appointmentService.ts:125` is the reschedule path; a malformed `startTime` currently returns 500, not 400. Expanded docs/architecture.md with a verified booking trace and source-confirmed findings. No code, tests or packages were run or changed in this pass.

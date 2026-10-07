@@ -15,9 +15,18 @@ today; the learning-focus features are yours to build.
 
 **You get:** a TypeScript Express + Knex API for `bookmarks` (`title`, `url`,
 `collection`, `status`, `tags`) with list/search/stats/CRUD, the standard envelope,
-and a one-page React client (`client/src/App.tsx`). The whole server backbone is six
+and a one-page React client (`client/src/App.tsx`). The whole server is twelve
 small files under `server/src/` — the same generic scaffold as Projects 4 and 7–10
-(routes → `controller.ts` → `service.ts` → `model.ts`).
+(routes → `controller.ts` → `service.ts` → `model.ts`), plus `services/metadata.ts`.
+
+> **Status check (verified 2026-10-06 against source):** this copy has already done much of
+> Labs 1 and 3. `service.ts` parses payloads with a Zod schema (http/https-only URLs without
+> credentials, bounded text, capped tags), `model.ts` searches with escaped `ILIKE` on
+> `title`/`url`/`collection` instead of `CAST(bookmarks AS TEXT)`, and
+> `POST /api/bookmarks/metadata` fetches a page `<title>` for hosts allow-listed in
+> `BOOKMARK_METADATA_HOSTS` (timeout, size cap, no redirects, public-IPv4 check). Still open:
+> `status` is free text (no enum), no versioning, no bookmarklet endpoint, and the client
+> still filters with `JSON.stringify(record)` in `App.tsx`. Read the table as history.
 
 **You build:**
 
@@ -35,7 +44,7 @@ API on **:4106**, client on :5173.
 
 ```bash
 createdb bookmark_manager_dev
-cd 06-bookmark-manager/server && cp .env.example .env
+cd 06-bookmark-manager && cp .env.example .env && cd server   # env.ts loads ../.env
 npm install && npm run migrate && npm run seed && npm run dev
 # another terminal
 cd 06-bookmark-manager/client && npm install && npm run dev
@@ -43,7 +52,8 @@ cd 06-bookmark-manager/client && npm install && npm run dev
 
 ```bash
 curl "http://localhost:4106/api/bookmarks?search=docs"
-# now feed it garbage and note that it happily accepts it — that's Lab 1's "before" state:
+# feed it garbage: the original scaffold accepted this; the current Zod schema returns 400
+# with one message per bad field (title, url, collection):
 curl -X POST http://localhost:4106/api/bookmarks -H "Content-Type: application/json" \
   -d '{"title":"","url":"definitely not a url","status":"whatever"}'
 ```
@@ -54,12 +64,14 @@ If you did Project 4's FABLE guide you know this shape; skim for differences (it
 TypeScript edition). Otherwise read in this order:
 
 1. `server/src/routes/routes.ts` → `controllers/controller.ts` — thin wiring, envelope out.
-2. `server/src/services/service.ts` — one dense file: `parseId`, `sanitizePayload`
-   (allow-list of `title/url/collection/status/tags`), get-or-404, delegating CRUD.
-   **This file is Lab 1's patient.**
-3. `server/src/models/model.ts` — Knex CRUD + the `CAST(bookmarks AS TEXT) ILIKE`
-   search shortcut (critiqued fully in Project 4's guide, Lab 1 there).
-4. `server/db/migrations/001_init.js` — check the `url` column length and `tags` type.
+2. `server/src/services/service.ts` — one dense file: the Zod `schema`, `parseId`,
+   `sanitizePayload` (Zod `safeParse`, `.partial()` for updates), get-or-404, delegating CRUD.
+   **This file is Lab 1's patient** (now largely healed; find what it still allows).
+3. `server/src/models/model.ts` — Knex CRUD + an escaped `ILIKE` search over
+   `title`/`url`/`collection` (it replaced the `CAST(bookmarks AS TEXT) ILIKE` shortcut
+   critiqued in Project 4's guide).
+4. `server/db/migrations/001_init.ts` — check the `url` column length and `tags` type. (A
+   `001_init.js` twin also exists, but `npm run migrate` uses `knexfile.ts`, which loads only `.ts`.)
 5. `client/src/App.tsx` + `services/api.ts` — one-page client; note the typed fetch layer.
 
 ## 4. The labs

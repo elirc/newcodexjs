@@ -163,9 +163,14 @@ curl "http://localhost:4000/api/tasks?status=todo&priority=high&sort=due_date&or
 ## Useful Checks
 
 ```bash
-npm --prefix 01-task-manager/server run lint --if-present
-npm --prefix 01-task-manager/client run lint --if-present
+# Integration tests: 4 node:test cases in server/test/tasks.test.cjs, run against real SQL rows.
+# server/test/database.cjs refuses to run unless the URL points at a throwaway database
+# whose name matches astra_test_*. The user and password below are examples; use your own.
+ASTRA_TEST_DATABASE_URL=postgres://postgres:postgres@localhost:5432/astra_test_tasks \
+  npm --prefix 01-task-manager/server test
 ```
+
+*(Note 2026-10-06: an earlier version of this section listed `run lint --if-present` for the server and client. Neither `package.json` defines a `lint` script, so both commands silently did nothing. The root `lint:project1:*` scripts are no-ops for the same reason. The test command above is the real check.)*
 
 Manual smoke test:
 

@@ -66,3 +66,7 @@ A browser search can have A and B in flight. If B finishes first, a later A resp
 These are focused learning improvements, not a production-readiness certification. Existing integrations and all optional exercises are outside the checked boundary unless named above.
 
 Delivery hashes and local course links are checked after applying the files. Logs, screenshots, diffs and backups are in AstraOrganized2/astrafinalplan/implementation/batch04. The combined report is AstraOrganized2/astrdocs/ALL_75_PROJECTS_REPORT.md.
+
+## Accuracy pass 2026-10-06
+
+Documentation accuracy pass (2026-10-06): every relative link and `path:line` citation in this course, README.md and docs/ was re-checked against the files on disk (all resolve and are in range), npm script names were matched against package.json, and the trace-lab client-side claims were re-read against the client source. Fixed: chapter 7 cited services/service.ts line 22 without its full path; chapter 3 now points to the in-repo `git diff 76a946e 32a962c` instead of only an external backup folder.

@@ -35,7 +35,7 @@ API on **:4110**, client on :5173.
 
 ```bash
 createdb inventory_management_dev
-cd 10-inventory-management/server && cp .env.example .env
+cd 10-inventory-management && cp .env.example .env && cd server   # server/src/config/env.ts loads ../.env
 npm install && npm run migrate && npm run seed && npm run dev
 # another terminal
 cd 10-inventory-management/client && npm install && npm run dev

@@ -51,3 +51,7 @@ These checks cover the implemented improvements and described regression cases. 
 Machine-readable results and logs are retained in AstraOrganized2/astrafinalplan/implementation/batch02. The combined report is in AstraOrganized2/astrdocs/ALL_20_PROJECTS_REPORT.md.
 
 Toolchain recorded in the fix pass: server `zod ^3.24.1`, `knex ^3.1.0`, `typescript ^5.7.2` (see `server/package.json`; lockfiles committed for `server/` and `client/`). Automated test cases: the delivered suites plus one added test (bounded search in `server/test/bookmarks.test.ts`).
+
+## Accuracy pass 2026-10-06
+
+Documentation accuracy pass (2026-10-06): every relative link and `path:line` citation in this course, README.md and docs/ was re-checked against the files on disk (all resolve and are in range), npm script names were matched against package.json, and the trace-lab client-side claims were re-read against the client source. Fixed: chapter 7 Boundary 1-2 claimed partial-key saves, a `client/src/pages` folder, server-side search from the UI and verbatim Zod messages; the client sends the whole form, filters in the browser, and shows axios's generic status message on a 400.

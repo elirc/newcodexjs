@@ -9,6 +9,8 @@ Self-contained TypeScript full-stack app for provider discovery, service booking
 3. In `server/`, run `npm install`, `npm run migrate`, `npm run seed`, then `npm run dev`.
 4. In `client/`, run `npm install`, then `npm run dev`.
 
+The project root `package.json` also offers `npm run db:migrate`, `npm run db:seed`, `npm run dev` (both apps) and `npm test`; tests need `ASTRA_TEST_DATABASE_URL` pointing at an `astra_test_*` database.
+
 The frontend expects the API at `http://localhost:4214/api` and runs on `http://localhost:5174`.
 
 ## Demo users

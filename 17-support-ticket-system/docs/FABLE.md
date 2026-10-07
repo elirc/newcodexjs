@@ -10,18 +10,19 @@ pressures drive every lab below.
 
 **Domain specifics:** tickets with `status` `open → pending → escalated → resolved`
 (+ `archived`), priority `low/medium/high/urgent`, team-scoped queues, internal
-comments (`is_internal` on the comment model — the scaffold already carries the flag),
-SLA/priority metadata, bulk assignment/status moves, and an audit trail pitched as
-"customer-impacting actions."
+comments (`is_internal` on the comment model — the scaffold already carries the flag,
+but no read path filters on it), SLA hours only as a number inside `metadata`, bulk
+*status* moves (there is no assignment endpoint), and an audit trail pitched as
+"customer-impacting actions." Team scoping is stamped (`team_id`) but not enforced on reads.
 
 **Stack:** React 18 + Vite + TypeScript / Express + Knex + PostgreSQL. API on **:4117**.
 
 ## 1. Run it (10 minutes)
 
 ```bash
-# create the DB named in server/.env.example, then:
-cd 17-support-ticket-system/server && cp .env.example .env
-npm install && npm run migrate && npm run seed && npm run dev
+# the server loads ../.env (relative to server/), i.e. a project-root .env:
+cd 17-support-ticket-system && cp .env.example .env   # create the DB_NAME it names
+cd server && npm install && npm run migrate && npm run seed && npm run dev
 # another terminal
 cd 17-support-ticket-system/client && npm install && npm run dev
 ```
@@ -31,9 +32,11 @@ curl "http://localhost:4117/api/tickets?status=open&sort=priority&order=desc"
 curl "http://localhost:4117/api/tickets/dashboard"
 # internal vs public comment — the flag that runs this whole domain:
 curl -X POST http://localhost:4117/api/tickets/1/comments -H "content-type: application/json" \
-  -H "x-role: operator" -d '{"body":"customer can see this","is_internal":false}'
+  -H "x-demo-role: operator" -d '{"body":"customer can see this","is_internal":false}'
 curl -X POST http://localhost:4117/api/tickets/1/comments -H "content-type: application/json" \
-  -H "x-role: operator" -d '{"body":"escalating, customer is furious","is_internal":true}'
+  -H "x-demo-role: operator" -d '{"body":"escalating, customer is furious","is_internal":true}'
+# note: GET .../comments returns both; nothing filters on is_internal yet,
+# and the bundled UI posts every comment with is_internal=true
 ```
 
 **Orientation pass (30 min):** skim `server/src/services/service.ts` and
@@ -104,7 +107,7 @@ for this domain's rationale.
 ## 5. Common traps
 
 - **SLA clocks in local time:** due-at timestamps must be UTC instants; business-hours math converts at the edges (Project 14's rule).
-- **`is_internal` filtered in the client only** — grep for where the filtering happens before believing the UI.
+- **`is_internal` filtered in the client only** — grep for where the filtering happens before believing the UI. (Here: nowhere. `listComments` returns every comment.)
 - **Reopen semantics:** customer replies to a `resolved` ticket. Auto-reopen? New ticket? Whatever you choose, the SLA clocks need a defined answer too.
 - **Priority inflation:** when everything is urgent nothing is — a `priority_changed` audit entry with actor is the honest countermeasure, and the scaffold's audit log already gives you the hook.
 

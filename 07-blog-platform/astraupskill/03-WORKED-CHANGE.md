@@ -16,7 +16,7 @@ Before running anything, write the exact expected stored values and visible resp
 
 ## Actual implementation excerpt
 
-The lines below are the ones Astra changed (compare `AstraOrganized2/astrafinalplan/implementation/batch04/backups/58` with `diff -r --strip-trailing-cr -w`): `parsePayload` validates with Zod and treats a `PUT` as partial, the list query searches per text column instead of casting the whole row, and `databasePayload` serializes `tags` only when present. The linked source is authoritative if you later edit the project.
+The lines below are the ones Astra changed (Astra compared a pre-change backup, `AstraOrganized2/astrafinalplan/implementation/batch04/backups/58`, using `diff -r --strip-trailing-cr -w`; that folder is not part of this repository, but the same before/after is in git: `git diff 76a946e 32a962c -- server/src/services/service.ts server/src/models/model.ts`): `parsePayload` validates with Zod and treats a `PUT` as partial, the list query searches per text column instead of casting the whole row, and `databasePayload` serializes `tags` only when present. The linked source is authoritative if you later edit the project.
 
 ```typescript
 // server/src/services/service.ts:22

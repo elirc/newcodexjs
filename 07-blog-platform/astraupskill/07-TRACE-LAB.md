@@ -122,7 +122,7 @@ For example, an edit can change a title while preserving an ID. A status command
 
 ### Boundary 3 — the route and service validate at runtime with Zod
 
-`server/src/routes/routes.ts` wraps every controller in `wrap()` so a rejected promise reaches `errorMiddleware`. The controller (`controllers/controller.ts`) passes `req.body` untouched to `service.create` / `service.update`. `parsePayload` (`services/service.ts:22`) runs `recordSchema` (or `recordSchema.partial()` for a `PUT`) with `safeParse`, joins every issue into one message, and rejects an empty object with `Provide at least one editable field.`; `parseId` (line 17) rejects `1e2` and non-positive ids before any query. `tags` are de-duplicated case-insensitively by the schema's `transform`.
+`server/src/routes/routes.ts` wraps every controller in `wrap()` so a rejected promise reaches `errorMiddleware`. The controller (`controllers/controller.ts`) passes `req.body` untouched to `service.create` / `service.update`. `parsePayload` (`server/src/services/service.ts:22`) runs `recordSchema` (or `recordSchema.partial()` for a `PUT`) with `safeParse`, joins every issue into one message, and rejects an empty object with `Provide at least one editable field.`; `parseId` (line 17) rejects `1e2` and non-positive ids before any query. `tags` are de-duplicated case-insensitively by the schema's `transform`.
 
 ### Boundary 4 — the model shapes the row and lets Knex build the SQL
 

@@ -17,14 +17,22 @@ find its weakest seam, and improve it without breaking what works.
 React client (`client/src/App.jsx`) with a form, list, search box, and stats strip.
 Notes already have `title`, `body`, `folder`, `status`, and `tags` fields.
 
-**You build (the labs in §5):**
+**You build (the labs in §4):**
+
+> **Status check (verified 2026-10-06 against source):** two of the shortcuts below have
+> already been replaced in this copy. `server/src/models/model.js` now searches with
+> `to_tsvector(...) @@ plainto_tsquery(...)` over `title`/`body` only, backed by the GIN
+> index in `server/db/migrations/002_search_index.js`, and `client/src/App.jsx` sends the
+> search to the server (debounced 250 ms, with a stale-response guard) instead of filtering
+> client-side. The service also enforces length limits and tag caps. Read the table as the
+> history of what was wrong; Labs 1 and 5 are now "read and explain the fix" exercises.
 
 | Upgrade | Replaces this shortcut in the scaffold |
 |---|---|
 | Markdown rendering | `body` is displayed as plain text even though seeds contain markdown (`"# Draft"`). |
-| Real search (Postgres FTS) | `model.js` searches with `CAST(notes AS TEXT) ILIKE '%term%'` — the whole row cast to text. Read that line and enumerate why it's wrong. |
+| Real search (Postgres FTS) | `model.js` originally searched with `CAST(notes AS TEXT) ILIKE '%term%'` — the whole row cast to text. Enumerate why that was wrong (now fixed; see status note). |
 | Debounced autosave | The form saves only on explicit submit. |
-| Folder/tag navigation | `folder` and `tags` are stored but the UI filters by a client-side `JSON.stringify(record).includes(search)` — yes, really (see `App.jsx`). |
+| Folder/tag navigation | `folder` and `tags` are stored but the UI has no folder or tag navigation (it originally also filtered with a client-side `JSON.stringify(record).includes(search)`; that is now gone). |
 
 The gap between the scaffold and the target *is the curriculum.* The naive lines are
 left visible on purpose so you can articulate what's wrong before fixing it.
@@ -38,7 +46,7 @@ Same layer rules as always: routes → controller → service → model.
 
 ```bash
 createdb notes_app_dev
-cd 04-notes-app/server && cp .env.example .env
+cd 04-notes-app && cp .env.example .env && cd server   # env.js loads ../.env
 npm install && npm run migrate && npm run seed && npm run dev   # API on :4104
 # another terminal
 cd 04-notes-app/client && npm install && npm run dev            # UI on :5173
@@ -56,10 +64,10 @@ curl "http://localhost:4104/api/notes/stats"
 | # | File | Notice this |
 |---|------|-------------|
 | 1 | `server/src/routes/routes.js` → `controllers/controller.js` | Generic names (`controller.js`, not `noteController.js`) — this scaffold shape is shared by Projects 4 and 6–10. Once you've read one, you can navigate all of them. |
-| 2 | `server/src/services/service.js` | `parseId`, `sanitizePayload` with an allow-list of fields. Compact but the same responsibilities as Project 1's fat service. What validation is *missing* compared to Project 1? (Length limits, enum checks…) List them; they're Level 1 work. |
-| 3 | `server/src/models/model.js` | 15 lines, and line 4 is the star: `CAST(notes AS TEXT) ILIKE`. It matches ids, timestamps, and status values, not just text. It also can't use any index. |
+| 2 | `server/src/services/service.js` | `parseId`, `sanitizePayload` with an allow-list of fields. Compact but the same responsibilities as Project 1's fat service. Length limits and tag caps are already there; what is still *missing* compared to Project 1? (Enum check on `status`, for one.) List them; they're Level 1 work. |
+| 3 | `server/src/models/model.js` | 25 lines; line 9 is the star: a `to_tsvector('english', …) @@ plainto_tsquery('english', ?)` predicate over `title`+`body` only. It replaced `CAST(notes AS TEXT) ILIKE`, which matched ids, timestamps and status values and couldn't use any index. Compare its expression with the index in `002_search_index.js`. |
 | 4 | `server/db/migrations/001_init.js` | The schema. Check how `tags` is stored (array/jsonb/text?) — your tag-filter lab depends on it. |
-| 5 | `client/src/App.jsx` | Everything in one component: state, fetch, form, list. Fine at this size — but find the line `records.filter((record) => JSON.stringify(record)...)` and note it searches *client-side* over *already-fetched* rows while the server also supports `?search=`. Two search implementations, both weak. Decide which one should win. |
+| 5 | `client/src/App.jsx` | Everything in one component: state, fetch, form, list. Fine at this size. The old client-side `JSON.stringify(record)` filter is gone: `refresh()` now calls `listRecords({ search })` 250 ms after typing stops, and a `requestVersion` ref discards stale responses. Explain why that ref is needed. |
 | 6 | `client/src/services/api.js` | The only fetch layer. Same isolation rule as Project 1's `tasksApi.js`. |
 
 ---
@@ -83,8 +91,8 @@ neutralizes it. Know *why* (react-markdown doesn't pass raw HTML by default) bef
 you rely on it. This boundary returns with real stakes in Project 7's rich-text editor.
 
 ### Lab 3 — Folders and tags as first-class navigation (junior→mid)
-Sidebar of folders (distinct values), clickable tag pills, server-side `?folder=` and
-`?tag=` params. How you filter by tag depends on the column type you found in the
+Sidebar of folders (distinct values), clickable tag pills, and a server-side `?tag=` param
+(`?folder=` already exists in `model.js`). How you filter by tag depends on the column type you found in the
 migration — `whereRaw` on jsonb containment vs. array `any()`. Show the SQL in your PR
 description.
 **Prove it:** filters combine (folder + tag + search) without breaking each other.
